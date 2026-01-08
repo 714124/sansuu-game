@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>さんすうゲーム：修正版</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --bg-body: #fff5f5;
+            --bg-card: #ffffff;
+            --accent-hissan: #ff7675;
+            --accent-level: #00cec9;
+            --stamp-bg: #fff9db;
+        }
+
+        body {
+            margin: 0; padding: 0;
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            background-color: var(--bg-body);
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; width: 100vw; overflow: hidden; touch-action: none;
+        }
+
+        #app-container {
+            width: 96vw; height: 94vh;
+            background: var(--bg-card);
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: flex; flex-direction: column;
+            border: 6px solid #dfe6e9;
+            position: relative; overflow: hidden;
+        }
+
+        .screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            background: white; z-index: 100;
+        }
+
+        #start-screen { display: flex; }
+
+        .menu-title { font-size: 2.5rem; color: #2d3436; margin-bottom: 40px; text-align: center; padding: 0 20px; }
+        .mode-container { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+
+        .mode-card {
+            width: 240px; padding: 25px; border-radius: 25px; border: 4px solid #eee;
+            cursor: pointer; transition: all 0.2s; text-align: center;
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
+        }
+        .mode-card:active { transform: scale(0.95); }
+        .mode-card.hissan { border-color: var(--accent-hissan); background: #fffafa; }
+        .mode-card.level { border-color: var(--accent-level); background: #f0ffff; }
+
+        .mode-icon { font-size: 4rem; }
+        .mode-name { font-size: 1.8rem; font-weight: bold; }
+        .mode-desc { font-size: 0.9rem; color: #636e72; }
+
+        .game-header {
+            height: 60px; display: flex; justify-content: space-between;
+            align-items: center; padding: 0 30px; background: #f8f9fa;
+        }
+
+        .level-badge { background: #fdcb6e; padding: 5px 20px; border-radius: 20px; font-weight: bold; }
+
+        .main-game-area { flex: 1; display: flex; padding: 20px; gap: 20px; min-height: 0; }
+        
+        .problem-box { flex: 1.2; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+
+        #level-problem-text { font-size: clamp(3rem, 10vw, 6rem); font-weight: bold; color: #2d3436; display: none; text-align: center; }
+
+        #hissan-table { font-size: 5rem; font-weight: bold; border-collapse: collapse; display: none; }
+        #hissan-table td { width: 90px; text-align: center; position: relative; padding: 5px; }
+        .line { border-bottom: 6px solid #2d3436; }
+        .op-sym { position: absolute; left: -60px; bottom: 10px; font-size: 4rem; }
+
+        .ans-slot {
+            width: 80px; height: 95px; border: 4px solid #eee; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center; font-size: 4rem;
+        }
+        .ans-slot.active { border-color: #0984e3; border-width: 5px; background: #e1f5fe; box-shadow: 0 0 15px rgba(9, 132, 227, 0.3); }
+        .ans-slot.filled { color: #e17055; }
+        .ans-slot.wrong { border-color: #d63031; color: #d63031; background: #fff5f5; }
+
+        .keypad {
+            flex: 0.8; background: #f8f9fa; border-radius: 25px;
+            padding: 15px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+        }
+        .num-btn {
+            background: white; border: 3px solid #dfe6e9; border-radius: 15px;
+            font-size: 2.2rem; font-weight: bold; cursor: pointer;
+            box-shadow: 0 4px 0 #dfe6e9; display: flex; align-items: center; justify-content: center;
+            user-select: none;
+        }
+        .num-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #dfe6e9; }
+        .num-btn.disabled { opacity: 0.5; cursor: default; }
+        
+        .num-btn.back {
+            background: #fab1a0; border-color: #e17055; box-shadow: 0 4px 0 #e17055;
+            color: white; font-size: 1.5rem;
+        }
+
+        .stamp-tray {
+            height: 90px; background: var(--stamp-bg); border-top: 4px dashed #ffeaa7;
+            display: flex; align-items: center; padding: 0 20px; gap: 8px; justify-content: space-around;
+        }
+        .stamp-hole {
+            width: 50px; height: 50px; border-radius: 50%; border: 2px dashed #ffeaa7;
+            display: flex; align-items: center; justify-content: center; background: white; font-size: 24px;
+        }
+        .stamped { animation: stamp-anim 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes stamp-anim { 0% { transform: scale(3); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+        #feedback {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 180px; pointer-events: none; z-index: 500; display: none;
+        }
+
+        /* 終了画面の重なり順を調整 */
+        #goal-screen { 
+            z-index: 2000; 
+            text-align: center;
+        }
+        #goal-screen h2, #goal-screen div, #goal-screen button {
+            position: relative;
+            z-index: 2100; /* 紙吹雪よりさらに上に */
+        }
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+    <div id="start-screen" class="screen">
+        <h1 class="menu-title">どっちのゲームであそぶ？</h1>
+        <div class="mode-container">
+            <div class="mode-card level" onclick="startGame('level')">
+                <div class="mode-icon">⚡</div>
+                <div class="mode-name">レベルアップ</div>
+                <div class="mode-desc">どんどんむずかしくなるよ！</div>
+            </div>
+            <div class="mode-card hissan" onclick="startGame('hissan')">
+                <div class="mode-icon">📝</div>
+                <div class="mode-name">ひっさん</div>
+                <div class="mode-desc">かいて計算しよう！</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="game-header">
+        <div class="level-badge" id="lv-display">レベル 1</div>
+        <div style="font-weight:bold; font-size: 1.3rem; color:#d63031;" id="count-display">あと 10もん</div>
+    </div>
+
+    <div class="main-game-area">
+        <div class="problem-box">
+            <div id="feedback"></div>
+            <div id="level-problem-text"></div>
+            <table id="hissan-table">
+                <tr><td></td><td id="h-d1-10"></td><td id="h-d1-1"></td></tr>
+                <tr class="line">
+                    <td><span class="op-sym">+</span></td>
+                    <td id="h-d2-10"></td><td id="h-d2-1"></td>
+                </tr>
+                <tr>
+                    <td id="td-100"><div class="ans-slot" id="box-100"></div></td>
+                    <td id="td-10"><div class="ans-slot" id="box-10"></div></td>
+                    <td id="td-1"><div class="ans-slot" id="box-1"></div></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="keypad" id="main-keypad">
+            <button class="num-btn" onclick="tapNum(7)">7</button>
+            <button class="num-btn" onclick="tapNum(8)">8</button>
+            <button class="num-btn" onclick="tapNum(9)">9</button>
+            <button class="num-btn" onclick="tapNum(4)">4</button>
+            <button class="num-btn" onclick="tapNum(5)">5</button>
+            <button class="num-btn" onclick="tapNum(6)">6</button>
+            <button class="num-btn" onclick="tapNum(1)">1</button>
+            <button class="num-btn" onclick="tapNum(2)">2</button>
+            <button class="num-btn" onclick="tapNum(3)">3</button>
+            <button class="num-btn" onclick="tapNum(0)">0</button>
+            <button class="num-btn back" style="grid-column: span 2;" onclick="tapBack()">けす</button>
+        </div>
+    </div>
+
+    <div class="stamp-tray" id="stamp-tray"></div>
+
+    <div id="goal-screen" class="screen">
+        <div id="goal-icon" style="font-size:100px;">🎖️</div>
+        <h2 id="goal-title" style="font-size:32px; color:#2d3436; margin: 10px 0;">おわり！</h2>
+        <div id="goal-stats" style="font-size: 24px; margin-bottom: 30px;"></div>
+        <button class="num-btn" style="padding: 15px 30px; background:#55efc4; border-color:#00b894; color: #2d3436;" onclick="backToMenu()">メニューにもどる</button>
+    </div>
+</div>
+
+<script>
+    let audioCtx = null;
+    function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    function playSound(freqs, type='sine', duration=0.2) {
+        if (!audioCtx) return;
+        const now = audioCtx.currentTime;
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(0.05, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
+        freqs.forEach(f => {
+            const osc = audioCtx.createOscillator();
+            osc.type = type;
+            osc.frequency.setValueAtTime(f, now);
+            osc.connect(gain);
+            osc.start(); osc.stop(now + duration);
+        });
+        gain.connect(audioCtx.destination);
+    }
+
+    const animals = ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸"];
+    const skulls = ["🤔", "💨", "💧", "⚠️"];
+
+    let gameMode = ''; 
+    let currentLv = 1;
+    let solvedTotal = 0;
+    let correctTotal = 0;
+    let problem = { n1: 0, n2: 0, ans: 0 }; 
+    let currentStep = "1";
+    let userInput = ""; 
+    let isLocked = false;
+    let confettiTimer = null;
+
+    function startGame(mode) {
+        initAudio();
+        gameMode = mode;
+        
+        // リセット処理
+        solvedTotal = 0;
+        correctTotal = 0;
+        currentLv = 1;
+        isLocked = false;
+        
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('goal-screen').style.display = 'none';
+        document.getElementById('lv-display').innerText = "レベル 1";
+        document.getElementById('count-display').innerText = "あと 10もん";
+        
+        const accent = mode === 'level' ? 'var(--accent-level)' : 'var(--accent-hissan)';
+        document.getElementById('app-container').style.borderColor = accent;
+        
+        if(mode === 'level') {
+            document.getElementById('level-problem-text').style.display = 'block';
+            document.getElementById('hissan-table').style.display = 'none';
+        } else {
+            document.getElementById('level-problem-text').style.display = 'none';
+            document.getElementById('hissan-table').style.display = 'table';
+        }
+
+        const tray = document.getElementById('stamp-tray');
+        tray.innerHTML = '';
+        for(let i=0; i<10; i++) {
+            const hole = document.createElement('div');
+            hole.className = 'stamp-hole'; hole.id = 'hole-' + i;
+            tray.appendChild(hole);
+        }
+
+        nextProblem();
+    }
+
+    function backToMenu() {
+        if (confettiTimer) cancelAnimationFrame(confettiTimer);
+        document.getElementById('goal-screen').style.display = 'none';
+        document.getElementById('start-screen').style.display = 'flex';
+        document.getElementById('app-container').style.borderColor = '#dfe6e9';
+    }
+
+    function nextProblem() {
+        let n1, n2, ans;
+        if(gameMode === 'level') {
+            if(currentLv === 1) { n1 = r(5); n2 = r(4); }
+            else if(currentLv === 2) { n1 = r(12, 5); n2 = r(12, 5); }
+            else { n1 = r(20, 10); n2 = r(20, 10); }
+            ans = n1 + n2;
+            userInput = "";
+            problem = { n1, n2, ans };
+            renderLevelText();
+        } else {
+            let max = currentLv === 1 ? 9 : (currentLv === 2 ? 45 : 89);
+            n1 = r(max); n2 = r(max); ans = n1 + n2;
+            problem = { n1, n2, ans };
+            
+            const setH = (num, row) => {
+                const s = num.toString().padStart(2, ' ');
+                document.getElementById(`h-d${row}-10`).innerText = s[0].trim();
+                document.getElementById(`h-d${row}-1`).innerText = s[1];
+            };
+            setH(n1, 1); setH(n2, 2);
+
+            const ansStr = ans.toString();
+            ["1", "10", "100"].forEach(id => {
+                const b = document.getElementById('box-'+id);
+                b.innerText = ""; b.className = 'ans-slot';
+                const vis = (ansStr.length >= id.length || (id==="10" && ansStr.length >= 2)) ? 'visible' : 'hidden';
+                document.getElementById('td-'+id).style.visibility = vis;
+            });
+            currentStep = "1";
+            updateHissanFocus();
+        }
+    }
+
+    function renderLevelText() {
+        const display = userInput === "" ? "?" : userInput;
+        document.getElementById('level-problem-text').innerHTML = `${problem.n1} + ${problem.n2} = <span style="color:#0984e3">${display}</span>`;
+    }
+
+    function r(max, min=1) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+    function updateHissanFocus() {
+        document.querySelectorAll('.ans-slot').forEach(s => s.classList.remove('active'));
+        const active = document.getElementById('box-' + currentStep);
+        if(active) active.classList.add('active');
+    }
+
+    function tapNum(n) {
+        if(isLocked) return; 
+        playSound([440, 880], 'sine', 0.1);
+
+        if(gameMode === 'level') {
+            userInput += n.toString();
+            renderLevelText();
+            const targetLen = problem.ans.toString().length;
+            if(userInput.length >= targetLen) {
+                checkResult(parseInt(userInput) === problem.ans);
+            }
+        } else {
+            const ansArr = problem.ans.toString().split('').reverse();
+            const targetIdx = currentStep === "1" ? 0 : (currentStep === "10" ? 1 : 2);
+            const expected = parseInt(ansArr[targetIdx]);
+
+            const b = document.getElementById('box-' + currentStep);
+            b.innerText = n;
+            b.classList.remove('wrong');
+
+            if(n === expected) {
+                b.classList.add('filled');
+                if(currentStep === "1" && ansArr.length > 1) { 
+                    currentStep = "10"; updateHissanFocus(); 
+                } else if(currentStep === "10" && ansArr.length > 2) { 
+                    currentStep = "100"; updateHissanFocus(); 
+                } else { 
+                    checkResult(true); 
+                }
+            } else {
+                b.classList.add('wrong');
+                checkResult(false);
+            }
+        }
+    }
+
+    function tapBack() {
+        if(isLocked) return;
+        playSound([330], 'sine', 0.1);
+
+        if(gameMode === 'level') {
+            if(userInput.length > 0) {
+                userInput = userInput.slice(0, -1);
+                renderLevelText();
+            }
+        } else {
+            let b = document.getElementById('box-' + currentStep);
+            if(b.innerText === "" && currentStep !== "1") {
+                if(currentStep === "10") currentStep = "1";
+                else if(currentStep === "100") currentStep = "10";
+                updateHissanFocus();
+                b = document.getElementById('box-' + currentStep);
+            }
+            b.innerText = "";
+            b.classList.remove('filled', 'wrong');
+        }
+    }
+
+    function checkResult(isCorrect) {
+        isLocked = true; 
+        const fb = document.getElementById('feedback');
+        fb.style.display = 'block';
+
+        if(isCorrect) {
+            playSound([880, 1320], 'sine', 0.4);
+            fb.innerText = "⭕"; fb.style.color = "#ff7675";
+            correctTotal++;
+            const icon = animals[r(animals.length-1, 0)];
+            document.getElementById('hole-'+solvedTotal).innerHTML = `<span class="stamped">${icon}</span>`;
+        } else {
+            playSound([200, 180], 'square', 0.5);
+            fb.innerText = "❌"; fb.style.color = "#b2bec3";
+            const icon = skulls[r(skulls.length-1, 0)];
+            document.getElementById('hole-'+solvedTotal).innerHTML = `<span class="stamped" style="filter:grayscale(1); opacity:0.3;">${icon}</span>`;
+        }
+
+        solvedTotal++;
+        document.getElementById('count-display').innerText = "あと " + (Math.max(0, 10 - solvedTotal)) + "もん";
+
+        setTimeout(() => {
+            fb.style.display = 'none';
+            if(solvedTotal >= 10) {
+                showGoal();
+            } else {
+                if(solvedTotal === 3) currentLv = 2;
+                if(solvedTotal === 7) currentLv = 3;
+                document.getElementById('lv-display').innerText = "レベル " + currentLv;
+                nextProblem();
+                isLocked = false;
+            }
+        }, 1200);
+    }
+
+    function showGoal() {
+        const screen = document.getElementById('goal-screen');
+        const stats = document.getElementById('goal-stats');
+        stats.innerHTML = `10もんちゅう <span style="font-size:40px; color:#e17055; font-weight:bold;">${correctTotal}もん</span> せいかい！`;
+        
+        screen.style.display = 'flex';
+
+        if(correctTotal >= 8) {
+            document.getElementById('goal-title').innerText = "ごうかく！おめでとう！";
+            document.getElementById('goal-icon').innerText = "👑✨";
+            
+            const end = Date.now() + 3000;
+            const colors = ['#55efc4', '#81ecec', '#74b9ff', '#a29bfe', '#ffeaa7', '#fab1a0', '#ff7675'];
+
+            (function frame() {
+                confetti({
+                    particleCount: 2,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: colors,
+                    zIndex: 2050 // テキストより下、背景より上に
+                });
+                confetti({
+                    particleCount: 2,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: colors,
+                    zIndex: 2050
+                });
+
+                if (Date.now() < end) {
+                    confettiTimer = requestAnimationFrame(frame);
+                }
+            }());
+        } else {
+            document.getElementById('goal-title').innerText = "おつかれさま！";
+            document.getElementById('goal-icon').innerText = "🚩";
+        }
+    }
+</script>
+</body>
+</html>
