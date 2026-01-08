@@ -29,10 +29,17 @@
 
 @media (orientation: landscape) {
   #app-container {
+    min-height: 100dvh;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    box-sizing: border-box;
+
     transform: scale(0.85);
     transform-origin: top center;
   }
 }
+
+
 
 
         .screen {
@@ -464,13 +471,4 @@
 </script>
 </body>
 </html>
-@media (orientation: landscape) {
-  #app-container {
-    transform: scale(0.8);
-    transform-origin: top center;
-  }
-}
 
-#app-container {
-  padding-top: env(safe-area-inset-top);
-}
