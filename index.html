@@ -29,7 +29,7 @@
 
         #app-container {
             position: relative;
-            height: 100vh;
+            height: 100svh;
             display: flex;
             flex-direction: column;
             max-width: 600px;
@@ -71,57 +71,121 @@
         .mode-desc { font-size: 0.7rem; color: #636e72; }
 
         .game-header {
-            height: 50px; display: flex; justify-content: space-between;
-            align-items: center; padding: 0 15px; background: #f8f9fa;
+            height: 44px; display: flex; justify-content: space-between;
+            align-items: center; padding: 0 15px; background: #f8f9fa; flex-shrink: 0;
         }
 
         .level-badge { background: #fdcb6e; padding: 4px 12px; border-radius: 15px; font-weight: bold; font-size: 0.8rem; }
 
-        .main-game-area { flex: 1; display: flex; flex-direction: column; padding: 10px; gap: 10px; min-height: 0; }
+        .main-game-area { flex: 1; display: flex; flex-direction: column; padding: 10px; gap: 5px; min-height: 0; overflow: hidden; }
         
-        .problem-box { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        .problem-box { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            position: relative;
+            min-height: 0;
+        }
 
-        #level-problem-text { font-size: clamp(2rem, 10vw, 4.5rem); font-weight: bold; color: #2d3436; text-align: center; margin: 10px 0; }
+        #level-problem-text { 
+            font-size: clamp(1.8rem, 8vh, 4rem); 
+            font-weight: bold; 
+            color: #2d3436; 
+            text-align: center; 
+            margin: 5px 0; 
+        }
         
-        #visual-area { display: none; gap: 5px; flex-wrap: wrap; justify-content: center; margin-bottom: 10px; padding: 10px; border: 2px dashed #eee; border-radius: 15px; width: 90%; }
-        .apple { font-size: 2.2rem; animation: pop 0.3s ease-out; }
+        #visual-area { 
+            display: none; 
+            gap: 5px; 
+            flex-wrap: wrap; 
+            justify-content: center; 
+            margin-bottom: 5px; 
+            padding: 5px; 
+            border: 2px dashed #eee; 
+            border-radius: 15px; 
+            width: 90%;
+            max-height: 40%;
+            overflow-y: auto;
+        }
+        .apple { font-size: clamp(1.5rem, 6vh, 2.2rem); animation: pop 0.3s ease-out; }
         @keyframes pop { 0% { transform: scale(0); } 100% { transform: scale(1); } }
 
-        #hissan-table { font-size: 3rem; font-weight: bold; border-collapse: collapse; display: none; margin: 10px 0; }
-        #hissan-table td { width: 60px; text-align: center; position: relative; padding: 2px; }
-        .line { border-bottom: 5px solid #2d3436; }
-        .op-sym { position: absolute; left: -35px; bottom: 5px; font-size: 2.5rem; }
+        #hissan-table { 
+            font-size: clamp(1.5rem, 7vh, 2.8rem); 
+            font-weight: bold; 
+            border-collapse: collapse; 
+            display: none; 
+            margin: 5px 0; 
+        }
+        #hissan-table td { width: clamp(40px, 12vw, 60px); text-align: center; position: relative; padding: 2px; }
+        .line { border-bottom: 4px solid #2d3436; }
+        .op-sym { position: absolute; left: -30px; bottom: 5px; font-size: 2rem; }
 
         .ans-slot {
-            width: 55px; height: 70px; border: 3px solid #eee; border-radius: 10px;
-            display: flex; align-items: center; justify-content: center; font-size: 2.5rem; cursor: pointer;
+            width: clamp(40px, 11vw, 55px); 
+            height: clamp(50px, 14vh, 70px); 
+            border: 3px solid #eee; 
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center; 
+            font-size: clamp(1.5rem, 7vh, 2.5rem); 
+            cursor: pointer;
         }
         .ans-slot.active { border-color: #0984e3; background: #e1f5fe; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); }
         .ans-slot.filled { color: #e17055; }
         .ans-slot.wrong { border-color: #d63031; color: #d63031; background: #fff5f5; }
 
         .keypad {
-            height: 35vh; background: #f8f9fa; border-radius: 20px;
-            padding: 10px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+            height: clamp(160px, 35vh, 280px); 
+            background: #f8f9fa; 
+            border-radius: 20px;
+            padding: 8px; 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 6px;
+            flex-shrink: 0;
         }
         .num-btn {
             background: white; border: 2px solid #dfe6e9; border-radius: 12px;
-            font-size: 1.6rem; font-weight: bold; cursor: pointer;
+            font-size: 1.4rem; font-weight: bold; cursor: pointer;
             box-shadow: 0 3px 0 #dfe6e9; display: flex; align-items: center; justify-content: center;
         }
         .num-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #dfe6e9; }
-        .num-btn.back { background: #fab1a0; border-color: #e17055; box-shadow: 0 3px 0 #e17055; color: white; font-size: 1.1rem; }
-        .num-btn.ok { background: #55efc4; border-color: #00b894; box-shadow: 0 3px 0 #00b894; color: white; font-size: 1.3rem; }
+        .num-btn.back { background: #fab1a0; border-color: #e17055; box-shadow: 0 3px 0 #e17055; color: white; font-size: 1rem; }
+        .num-btn.ok { background: #55efc4; border-color: #00b894; box-shadow: 0 3px 0 #00b894; color: white; font-size: 1.1rem; }
 
         .stamp-tray {
-            height: 60px; background: var(--stamp-bg); border-top: 3px dashed #ffeaa7;
+            height: 48px; background: var(--stamp-bg); border-top: 3px dashed #ffeaa7;
             display: flex; align-items: center; padding: 0 10px; gap: 4px; justify-content: space-around;
+            flex-shrink: 0;
         }
-        .stamp-hole { width: 35px; height: 35px; border-radius: 50%; border: 2px dashed #ffeaa7; display: flex; align-items: center; justify-content: center; background: white; font-size: 18px; }
+        .stamp-hole { width: 30px; height: 30px; border-radius: 50%; border: 2px dashed #ffeaa7; display: flex; align-items: center; justify-content: center; background: white; font-size: 16px; }
         .stamped { animation: stamp-anim 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         @keyframes stamp-anim { 0% { transform: scale(3); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-        #feedback { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 120px; z-index: 500; display: none; pointer-events: none; }
+        /* 横向き画面での調整 */
+        @media screen and (max-height: 450px) {
+            .menu-title { font-size: 1.2rem; margin-bottom: 10px; }
+            .mode-container { grid-template-columns: repeat(4, 1fr); }
+            .mode-card { padding: 8px; }
+            .mode-icon { font-size: 1.5rem; }
+            .mode-name { font-size: 0.8rem; }
+            .mode-desc { display: none; }
+            
+            .game-header { height: 32px; }
+            .stamp-tray { height: 36px; }
+            .stamp-hole { width: 24px; height: 24px; font-size: 12px; }
+
+            .keypad { height: 130px; padding: 4px; gap: 4px; }
+            .num-btn { font-size: 1.1rem; border-radius: 8px; }
+            
+            #visual-area { max-height: 30%; margin-bottom: 2px; }
+            #level-problem-text { font-size: 1.8rem; margin: 2px 0; }
+        }
+
+        #feedback { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 100px; z-index: 500; display: none; pointer-events: none; }
         #goal-screen { z-index: 2000; text-align: center; }
     </style>
 </head>
@@ -156,7 +220,7 @@
 
     <div class="game-header">
         <div class="level-badge" id="lv-display">レベル 1</div>
-        <div style="font-weight:bold; font-size: 0.9rem; color:#d63031;" id="count-display">あと 10もん</div>
+        <div style="font-weight:bold; font-size: 0.8rem; color:#d63031;" id="count-display">あと 10もん</div>
     </div>
 
     <div class="main-game-area">
@@ -198,9 +262,9 @@
     <div class="stamp-tray" id="stamp-tray"></div>
 
     <div id="goal-screen" class="screen">
-        <div id="goal-icon" style="font-size:80px;">🎖️</div>
-        <h2 id="goal-title" style="margin: 10px 0;">おわり！</h2>
-        <div id="goal-stats" style="font-size: 20px; margin-bottom: 20px;"></div>
+        <div id="goal-icon" style="font-size:60px;">🎖️</div>
+        <h2 id="goal-title" style="margin: 10px 0; font-size: 1.5rem;">おわり！</h2>
+        <div id="goal-stats" style="font-size: 1.1rem; margin-bottom: 20px;"></div>
         <button class="num-btn" style="padding: 10px 20px; background:#55efc4; border-color:#00b894;" onclick="backToMenu()">メニューにもどる</button>
     </div>
 </div>
@@ -343,13 +407,22 @@
             b.classList.add('filled');
             hissanAnswers[currentStep] = n.toString();
             
-            // 次の空いている桁へ自動移動（任意）
+            // 次の空いている桁へ自動移動
             const steps = ["1", "10", "100", "1000"];
             const ansStr = problem.ans.toString();
             let currentIndex = steps.indexOf(currentStep);
             if(currentIndex < ansStr.length - 1) {
-                currentStep = steps[currentIndex + 1];
-                updateHissanFocus();
+                // 表示されている桁のみ移動
+                let nextIdx = currentIndex + 1;
+                while(nextIdx < steps.length) {
+                    const nextBox = document.getElementById('box-' + steps[nextIdx]);
+                    if(nextBox && nextBox.parentElement.style.visibility !== 'hidden') {
+                        currentStep = steps[nextIdx];
+                        updateHissanFocus();
+                        break;
+                    }
+                    nextIdx++;
+                }
             }
         }
     }
@@ -371,21 +444,8 @@
             if(userInput === "") return;
             checkResult(parseInt(userInput) === problem.ans);
         } else {
-            // 筆算の判定：表示されている全ての桁の数字を連結して判定
-            const ansStr = problem.ans.toString();
-            let builtAns = "";
-            const steps = ["1000", "100", "10", "1"];
-            steps.forEach(s => {
-                const box = document.getElementById('box-' + s);
-                if(box.parentElement.style.visibility !== 'hidden') {
-                    builtAns += hissanAnswers[s] === "" ? " " : hissanAnswers[s];
-                }
-            });
-            
-            // 逆順（1の位から）に並んでいるので正しく構築
             const finalInput = (hissanAnswers["1000"] + hissanAnswers["100"] + hissanAnswers["10"] + hissanAnswers["1"]).trim();
             
-            // すべての桁が埋まっているかチェック
             let allFilled = true;
             ["1", "10", "100", "1000"].forEach(s => {
                 const box = document.getElementById('box-' + s);
@@ -393,7 +453,7 @@
             });
 
             if(!allFilled) {
-                playSound([200], 'square', 0.2); // まだだよ音
+                playSound([200], 'square', 0.2);
                 return;
             }
 
@@ -417,7 +477,6 @@
             const icon = skulls[r(skulls.length-1, 0)];
             document.getElementById('hole-'+solvedTotal).innerHTML = `<span class="stamped" style="filter:grayscale(1); opacity:0.3;">${icon}</span>`;
             
-            // 筆算モードで間違えた場合、赤い枠を表示
             if(gameMode === 'hissan' || gameMode === 'hard') {
                 ["1", "10", "100", "1000"].forEach(s => {
                     const box = document.getElementById('box-'+s);
