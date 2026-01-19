@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>さんすうゲーム：筆算改善版</title>
+    <title>さんすうゲーム：横画面対応</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
@@ -22,8 +22,8 @@
             margin: 0;
             font-family: 'M PLUS Rounded 1c', sans-serif;
             background-color: var(--bg-body);
-            min-height: 100svh;
-            overflow-x: hidden;
+            height: 100svh;
+            overflow: hidden;
             touch-action: manipulation;
         }
 
@@ -32,7 +32,7 @@
             height: 100svh;
             display: flex;
             flex-direction: column;
-            max-width: 600px;
+            max-width: 900px;
             margin: 0 auto;
             background: white;
             box-shadow: 0 0 20px rgba(0,0,0,0.1);
@@ -45,7 +45,6 @@
         }
 
         #start-screen { display: flex; overflow-y: auto; padding: 20px 0; }
-
         .menu-title { font-size: 1.8rem; color: #2d3436; margin-bottom: 20px; text-align: center; }
         .mode-container { 
             display: grid; 
@@ -54,30 +53,32 @@
             padding: 10px;
             width: 90%;
         }
-
         .mode-card {
             padding: 15px; border-radius: 20px; border: 4px solid #eee;
             cursor: pointer; transition: all 0.2s; text-align: center;
             display: flex; flex-direction: column; align-items: center; gap: 5px;
         }
-        .mode-card:active { transform: scale(0.95); }
         .mode-card.easy { border-color: var(--accent-easy); background: #fff0f9; }
         .mode-card.level { border-color: var(--accent-level); background: #f0ffff; }
         .mode-card.hissan { border-color: var(--accent-hissan); background: #fffafa; }
         .mode-card.hard { border-color: var(--accent-hard); background: #f3f0ff; }
 
-        .mode-icon { font-size: 2.2rem; }
-        .mode-name { font-size: 1.1rem; font-weight: bold; }
-        .mode-desc { font-size: 0.7rem; color: #636e72; }
-
         .game-header {
             height: 44px; display: flex; justify-content: space-between;
             align-items: center; padding: 0 15px; background: #f8f9fa; flex-shrink: 0;
+            border-bottom: 1px solid #eee;
         }
-
         .level-badge { background: #fdcb6e; padding: 4px 12px; border-radius: 15px; font-weight: bold; font-size: 0.8rem; }
 
-        .main-game-area { flex: 1; display: flex; flex-direction: column; padding: 10px; gap: 5px; min-height: 0; overflow: hidden; }
+        .main-game-area { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            padding: 10px; 
+            gap: 10px; 
+            min-height: 0; 
+            overflow: hidden; 
+        }
         
         .problem-box { 
             flex: 1; 
@@ -90,7 +91,7 @@
         }
 
         #level-problem-text { 
-            font-size: clamp(1.8rem, 8vh, 4rem); 
+            font-size: clamp(1.8rem, 8vh, 3.5rem); 
             font-weight: bold; 
             color: #2d3436; 
             text-align: center; 
@@ -98,53 +99,36 @@
         }
         
         #visual-area { 
-            display: none; 
-            gap: 5px; 
-            flex-wrap: wrap; 
-            justify-content: center; 
-            margin-bottom: 5px; 
-            padding: 5px; 
-            border: 2px dashed #eee; 
-            border-radius: 15px; 
-            width: 90%;
-            max-height: 40%;
-            overflow-y: auto;
+            display: none; gap: 5px; flex-wrap: wrap; justify-content: center; 
+            margin-bottom: 5px; padding: 5px; border: 2px dashed #eee; border-radius: 15px; 
+            width: 90%; max-height: 40%; overflow-y: auto;
         }
-        .apple { font-size: clamp(1.5rem, 6vh, 2.2rem); animation: pop 0.3s ease-out; }
-        @keyframes pop { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+        .apple { font-size: clamp(1.5rem, 6vh, 2.2rem); }
 
         #hissan-table { 
             font-size: clamp(1.5rem, 7vh, 2.8rem); 
             font-weight: bold; 
             border-collapse: collapse; 
             display: none; 
-            margin: 5px 0; 
         }
-        #hissan-table td { width: clamp(40px, 12vw, 60px); text-align: center; position: relative; padding: 2px; }
+        #hissan-table td { width: clamp(40px, 10vw, 60px); text-align: center; position: relative; padding: 2px; }
         .line { border-bottom: 4px solid #2d3436; }
         .op-sym { position: absolute; left: -30px; bottom: 5px; font-size: 2rem; }
 
         .ans-slot {
-            width: clamp(40px, 11vw, 55px); 
-            height: clamp(50px, 14vh, 70px); 
-            border: 3px solid #eee; 
-            border-radius: 10px;
+            width: 100%; height: clamp(50px, 14vh, 70px); 
+            border: 3px solid #eee; border-radius: 10px;
             display: flex; align-items: center; justify-content: center; 
-            font-size: clamp(1.5rem, 7vh, 2.5rem); 
-            cursor: pointer;
+            font-size: clamp(1.5rem, 7vh, 2.5rem); cursor: pointer;
         }
-        .ans-slot.active { border-color: #0984e3; background: #e1f5fe; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); }
+        .ans-slot.active { border-color: #0984e3; background: #e1f5fe; }
         .ans-slot.filled { color: #e17055; }
         .ans-slot.wrong { border-color: #d63031; color: #d63031; background: #fff5f5; }
 
         .keypad {
-            height: clamp(160px, 35vh, 280px); 
-            background: #f8f9fa; 
-            border-radius: 20px;
-            padding: 8px; 
-            display: grid; 
-            grid-template-columns: repeat(3, 1fr); 
-            gap: 6px;
+            height: 35vh;
+            background: #f8f9fa; border-radius: 20px;
+            padding: 8px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
             flex-shrink: 0;
         }
         .num-btn {
@@ -153,40 +137,49 @@
             box-shadow: 0 3px 0 #dfe6e9; display: flex; align-items: center; justify-content: center;
         }
         .num-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #dfe6e9; }
-        .num-btn.back { background: #fab1a0; border-color: #e17055; box-shadow: 0 3px 0 #e17055; color: white; font-size: 1rem; }
-        .num-btn.ok { background: #55efc4; border-color: #00b894; box-shadow: 0 3px 0 #00b894; color: white; font-size: 1.1rem; }
+        .num-btn.back { background: #fab1a0; border-color: #e17055; box-shadow: 0 3px 0 #e17055; color: white; }
+        .num-btn.ok { background: #55efc4; border-color: #00b894; box-shadow: 0 3px 0 #00b894; color: white; }
 
         .stamp-tray {
             height: 48px; background: var(--stamp-bg); border-top: 3px dashed #ffeaa7;
             display: flex; align-items: center; padding: 0 10px; gap: 4px; justify-content: space-around;
             flex-shrink: 0;
         }
-        .stamp-hole { width: 30px; height: 30px; border-radius: 50%; border: 2px dashed #ffeaa7; display: flex; align-items: center; justify-content: center; background: white; font-size: 16px; }
-        .stamped { animation: stamp-anim 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-        @keyframes stamp-anim { 0% { transform: scale(3); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .stamp-hole { width: 30px; height: 30px; border-radius: 50%; border: 2px dashed #ffeaa7; display: flex; align-items: center; justify-content: center; background: white; font-size: 14px; }
 
-        /* 横向き画面での調整 */
+        /* iPhone 横向きレイアウト */
         @media screen and (max-height: 450px) {
-            .menu-title { font-size: 1.2rem; margin-bottom: 10px; }
-            .mode-container { grid-template-columns: repeat(4, 1fr); }
-            .mode-card { padding: 8px; }
-            .mode-icon { font-size: 1.5rem; }
-            .mode-name { font-size: 0.8rem; }
-            .mode-desc { display: none; }
+            .main-game-area {
+                flex-direction: row; /* 横に並べる */
+                align-items: center;
+                gap: 20px;
+            }
+            .problem-box {
+                flex: 1.2;
+                height: 100%;
+            }
+            .keypad {
+                flex: 1;
+                height: 100%;
+                grid-template-columns: repeat(4, 1fr); /* 4列にして高さを節約 */
+                padding: 4px;
+            }
+            .num-btn { font-size: 1.2rem; height: auto; }
+            .game-header, .stamp-tray { height: 32px; font-size: 0.7rem; }
+            .stamp-hole { width: 22px; height: 22px; font-size: 10px; }
             
-            .game-header { height: 32px; }
-            .stamp-tray { height: 36px; }
-            .stamp-hole { width: 24px; height: 24px; font-size: 12px; }
-
-            .keypad { height: 130px; padding: 4px; gap: 4px; }
-            .num-btn { font-size: 1.1rem; border-radius: 8px; }
+            #visual-area { max-height: 50%; }
+            #hissan-table { font-size: 1.8rem; }
+            #hissan-table td { width: 40px; }
+            .ans-slot { height: 45px; font-size: 1.8rem; }
             
-            #visual-area { max-height: 30%; margin-bottom: 2px; }
-            #level-problem-text { font-size: 1.8rem; margin: 2px 0; }
+            /* キーパッドの並びを4列用に調整 */
+            .num-btn:nth-child(10) { grid-column: span 1; }
+            .num-btn.back { grid-column: span 1; }
+            .num-btn.ok { grid-column: span 2; }
         }
 
-        #feedback { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 100px; z-index: 500; display: none; pointer-events: none; }
-        #goal-screen { z-index: 2000; text-align: center; }
+        #feedback { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 80px; z-index: 500; display: none; pointer-events: none; }
     </style>
 </head>
 <body>
@@ -195,32 +188,16 @@
     <div id="start-screen" class="screen">
         <h1 class="menu-title">どのゲームであそぶ？</h1>
         <div class="mode-container">
-            <div class="mode-card easy" onclick="startGame('easy')">
-                <div class="mode-icon">🍎</div>
-                <div class="mode-name">超かんたん</div>
-                <div class="mode-desc">かずをかぞえよう</div>
-            </div>
-            <div class="mode-card level" onclick="startGame('level')">
-                <div class="mode-icon">⚡</div>
-                <div class="mode-name">レベルアップ</div>
-                <div class="mode-desc">どんどん難しく！</div>
-            </div>
-            <div class="mode-card hissan" onclick="startGame('hissan')">
-                <div class="mode-icon">📝</div>
-                <div class="mode-name">ひっさん</div>
-                <div class="mode-desc">かいて計算しよう</div>
-            </div>
-            <div class="mode-card hard" onclick="startGame('hard')">
-                <div class="mode-icon">👿</div>
-                <div class="mode-name">げきむず</div>
-                <div class="mode-desc">3けたのひっさん</div>
-            </div>
+            <div class="mode-card easy" onclick="startGame('easy')"><span>🍎</span> かぞえよう</div>
+            <div class="mode-card level" onclick="startGame('level')"><span>⚡</span> アップ</div>
+            <div class="mode-card hissan" onclick="startGame('hissan')"><span>📝</span> ひっさん</div>
+            <div class="mode-card hard" onclick="startGame('hard')"><span>👿</span> げきむず</div>
         </div>
     </div>
 
     <div class="game-header">
-        <div class="level-badge" id="lv-display">レベル 1</div>
-        <div style="font-weight:bold; font-size: 0.8rem; color:#d63031;" id="count-display">あと 10もん</div>
+        <div class="level-badge" id="lv-display">Lv.1</div>
+        <div id="count-display">あと 10もん</div>
     </div>
 
     <div class="main-game-area">
@@ -254,7 +231,7 @@
             <button class="num-btn" onclick="tapNum(2)">2</button>
             <button class="num-btn" onclick="tapNum(3)">3</button>
             <button class="num-btn" onclick="tapNum(0)">0</button>
-            <button class="num-btn back" onclick="tapBack()">けす</button>
+            <button class="num-btn back" onclick="tapBack()">消す</button>
             <button class="num-btn ok" id="ok-btn" onclick="tapOK()">OK</button>
         </div>
     </div>
@@ -262,17 +239,17 @@
     <div class="stamp-tray" id="stamp-tray"></div>
 
     <div id="goal-screen" class="screen">
-        <div id="goal-icon" style="font-size:60px;">🎖️</div>
-        <h2 id="goal-title" style="margin: 10px 0; font-size: 1.5rem;">おわり！</h2>
-        <div id="goal-stats" style="font-size: 1.1rem; margin-bottom: 20px;"></div>
-        <button class="num-btn" style="padding: 10px 20px; background:#55efc4; border-color:#00b894;" onclick="backToMenu()">メニューにもどる</button>
+        <div style="font-size:60px;">🎖️</div>
+        <h2 id="goal-title">おわり！</h2>
+        <div id="goal-stats" style="margin-bottom: 20px;"></div>
+        <button class="num-btn" style="padding: 10px 20px; background:#55efc4;" onclick="backToMenu()">もどる</button>
     </div>
 </div>
 
 <script>
     let audioCtx = null;
     function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
-    function playSound(freqs, type='sine', duration=0.2) {
+    function playSound(freqs, duration=0.2) {
         if (!audioCtx) return;
         const now = audioCtx.currentTime;
         const gain = audioCtx.createGain();
@@ -280,14 +257,13 @@
         gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
         freqs.forEach(f => {
             const osc = audioCtx.createOscillator();
-            osc.type = type; osc.frequency.setValueAtTime(f, now);
+            osc.frequency.setValueAtTime(f, now);
             osc.connect(gain); osc.start(); osc.stop(now + duration);
         });
         gain.connect(audioCtx.destination);
     }
 
-    const animals = ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸"];
-    const skulls = ["🤔", "💨", "⚠️"];
+    const animals = ["🐶","🐱","🐰","🐼","🐻","🦊","🦁","🐮"];
     let gameMode = '', currentLv = 1, solvedTotal = 0, correctTotal = 0, problem = {}, currentStep = "1", userInput = "", isLocked = false;
     let hissanAnswers = { "1": "", "10": "", "100": "", "1000": "" };
 
@@ -296,63 +272,40 @@
         document.getElementById('start-screen').style.display = 'none';
         document.getElementById('goal-screen').style.display = 'none';
         
-        const labels = {'easy':'超かんたん', 'level':'レベルアップ', 'hissan':'ひっさん', 'hard':'げきむず'};
-        document.getElementById('lv-display').innerText = labels[mode] + " Lv.1";
-        document.getElementById('count-display').innerText = "あと 10もん";
-
-        const tray = document.getElementById('stamp-tray');
-        tray.innerHTML = '';
+        const tray = document.getElementById('stamp-tray'); tray.innerHTML = '';
         for(let i=0; i<10; i++) {
-            const hole = document.createElement('div');
-            hole.className = 'stamp-hole'; hole.id = 'hole-' + i;
+            const hole = document.createElement('div'); hole.className = 'stamp-hole'; hole.id = 'hole-' + i;
             tray.appendChild(hole);
         }
         nextProblem();
     }
 
     function nextProblem() {
-        userInput = "";
-        hissanAnswers = { "1": "", "10": "", "100": "", "1000": "" };
-        let n1, n2, ans;
+        userInput = ""; hissanAnswers = { "1": "", "10": "", "100": "", "1000": "" };
         const visual = document.getElementById('visual-area');
         const probText = document.getElementById('level-problem-text');
         const table = document.getElementById('hissan-table');
-        
-        visual.style.display = 'none';
-        probText.style.display = 'none';
-        table.style.display = 'none';
+        visual.style.display = 'none'; probText.style.display = 'none'; table.style.display = 'none';
 
+        let n1, n2, ans;
         if(gameMode === 'easy') {
-            n1 = r(5, 1); n2 = r(5, 1); ans = n1 + n2;
-            visual.style.display = 'flex';
-            probText.style.display = 'block';
+            n1 = r(5); n2 = r(5); ans = n1 + n2;
+            visual.style.display = 'flex'; probText.style.display = 'block';
             visual.innerHTML = "";
             for(let i=0; i<n1; i++) visual.innerHTML += '<span class="apple">🍎</span>';
-            visual.innerHTML += '<span style="font-size:1.5rem; margin:0 5px; align-self:center;">と</span>';
+            visual.innerHTML += '<span style="align-self:center;margin:0 5px;">と</span>';
             for(let i=0; i<n2; i++) visual.innerHTML += '<span class="apple">🍏</span>';
-            problem = { n1, n2, ans };
-            renderLevelText();
-        } 
-        else if(gameMode === 'level') {
+            problem = { n1, n2, ans }; renderLevelText();
+        } else if(gameMode === 'level') {
             n1 = (currentLv===1)?r(5): (currentLv===2?r(15,5):r(30,10));
             n2 = (currentLv===1)?r(5): (currentLv===2?r(15,5):r(30,10));
-            ans = n1 + n2;
-            probText.style.display = 'block';
-            problem = { n1, n2, ans };
-            renderLevelText();
-        } 
-        else {
+            ans = n1 + n2; probText.style.display = 'block';
+            problem = { n1, n2, ans }; renderLevelText();
+        } else {
             table.style.display = 'table';
-            if(gameMode === 'hissan') {
-                n1 = (currentLv===1)?r(9,1): (currentLv===2?r(49,10):r(99,10));
-                n2 = (currentLv===1)?r(9,1): (currentLv===2?r(49,10):r(99,10));
-            } else { // hard
-                n1 = (currentLv===1)?r(300,100): (currentLv===2?r(600,300):r(999,500));
-                n2 = (currentLv===1)?r(300,100): (currentLv===2?r(300,100):r(999,100));
-            }
-            ans = n1 + n2;
-            problem = { n1, n2, ans };
-            setupHissan(n1, n2, ans);
+            if(gameMode === 'hissan') { n1 = r(currentLv*30, 1); n2 = r(currentLv*30, 1); }
+            else { n1 = r(900, 100); n2 = r(900, 100); }
+            ans = n1 + n2; problem = { n1, n2, ans }; setupHissan(n1, n2, ans);
         }
     }
 
@@ -366,13 +319,11 @@
         setH(n1, 1); setH(n2, 2);
         const ansStr = ans.toString();
         ["1", "10", "100", "1000"].forEach(id => {
-            const b = document.getElementById('box-'+id);
-            b.innerText = ""; b.className = 'ans-slot';
+            const b = document.getElementById('box-'+id); b.innerText = ""; b.className = 'ans-slot';
             const show = (ansStr.length >= id.length || (id==="10" && ansStr.length>=2) || (id==="100" && ansStr.length>=3));
             b.parentElement.style.visibility = show ? 'visible' : 'hidden';
         });
-        currentStep = "1";
-        updateHissanFocus();
+        currentStep = "1"; updateHissanFocus();
     }
 
     function renderLevelText() {
@@ -382,12 +333,7 @@
 
     function r(max, min=1) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
-    function setStep(id) {
-        if(isLocked) return;
-        currentStep = id;
-        updateHissanFocus();
-        playSound([660], 'sine', 0.05);
-    }
+    function setStep(id) { if(!isLocked) { currentStep = id; updateHissanFocus(); playSound([660], 0.05); } }
 
     function updateHissanFocus() {
         document.querySelectorAll('.ans-slot').forEach(s => s.classList.remove('active'));
@@ -397,31 +343,20 @@
 
     function tapNum(n) {
         if(isLocked) return;
-        playSound([440, 880], 'sine', 0.1);
+        playSound([440, 880], 0.1);
         if(gameMode === 'easy' || gameMode === 'level') {
-            userInput += n.toString();
-            renderLevelText();
+            userInput += n.toString(); renderLevelText();
         } else {
             const b = document.getElementById('box-' + currentStep);
-            b.innerText = n;
-            b.classList.add('filled');
+            b.innerText = n; b.classList.add('filled');
             hissanAnswers[currentStep] = n.toString();
-            
-            // 次の空いている桁へ自動移動
+            // 自動移動
             const steps = ["1", "10", "100", "1000"];
-            const ansStr = problem.ans.toString();
-            let currentIndex = steps.indexOf(currentStep);
-            if(currentIndex < ansStr.length - 1) {
-                // 表示されている桁のみ移動
-                let nextIdx = currentIndex + 1;
-                while(nextIdx < steps.length) {
-                    const nextBox = document.getElementById('box-' + steps[nextIdx]);
-                    if(nextBox && nextBox.parentElement.style.visibility !== 'hidden') {
-                        currentStep = steps[nextIdx];
-                        updateHissanFocus();
-                        break;
-                    }
-                    nextIdx++;
+            let idx = steps.indexOf(currentStep);
+            if(idx < steps.length-1) {
+                let next = steps[idx+1];
+                if(document.getElementById('box-'+next).parentElement.style.visibility !== 'hidden') {
+                    currentStep = next; updateHissanFocus();
                 }
             }
         }
@@ -429,36 +364,21 @@
 
     function tapBack() {
         if(isLocked) return;
-        if(gameMode==='easy' || gameMode==='level') {
-            userInput = userInput.slice(0,-1); renderLevelText();
-        } else {
-            const b = document.getElementById('box-'+currentStep);
-            b.innerText = ""; b.classList.remove('filled','wrong');
-            hissanAnswers[currentStep] = "";
-        }
+        if(gameMode==='easy' || gameMode==='level') { userInput = userInput.slice(0,-1); renderLevelText(); }
+        else { const b = document.getElementById('box-'+currentStep); b.innerText = ""; hissanAnswers[currentStep] = ""; }
     }
 
     function tapOK() {
-        if(isLocked) return;
-        if(gameMode === 'easy' || gameMode === 'level') {
-            if(userInput === "") return;
-            checkResult(parseInt(userInput) === problem.ans);
+        if(isLocked || (userInput === "" && (gameMode==='easy'||gameMode==='level'))) return;
+        let correct = false;
+        if(gameMode==='easy' || gameMode==='level') {
+            correct = parseInt(userInput) === problem.ans;
         } else {
             const finalInput = (hissanAnswers["1000"] + hissanAnswers["100"] + hissanAnswers["10"] + hissanAnswers["1"]).trim();
-            
-            let allFilled = true;
-            ["1", "10", "100", "1000"].forEach(s => {
-                const box = document.getElementById('box-' + s);
-                if(box.parentElement.style.visibility !== 'hidden' && hissanAnswers[s] === "") allFilled = false;
-            });
-
-            if(!allFilled) {
-                playSound([200], 'square', 0.2);
-                return;
-            }
-
-            checkResult(parseInt(finalInput) === problem.ans);
+            if(finalInput === "") return;
+            correct = parseInt(finalInput) === problem.ans;
         }
+        checkResult(correct);
     }
 
     function checkResult(isCorrect) {
@@ -466,47 +386,26 @@
         const fb = document.getElementById('feedback');
         fb.style.display = 'block';
         if(isCorrect) {
-            playSound([880, 1320], 'sine', 0.4);
-            fb.innerText = "⭕"; fb.style.color = "#ff7675";
+            playSound([880, 1320], 0.3); fb.innerText = "⭕"; fb.style.color = "red";
             correctTotal++;
-            const icon = animals[r(animals.length-1, 0)];
-            document.getElementById('hole-'+solvedTotal).innerHTML = `<span class="stamped">${icon}</span>`;
+            document.getElementById('hole-'+solvedTotal).innerHTML = `<span>${animals[r(7,0)]}</span>`;
         } else {
-            playSound([200, 180], 'square', 0.5);
-            fb.innerText = "❌"; fb.style.color = "#b2bec3";
-            const icon = skulls[r(skulls.length-1, 0)];
-            document.getElementById('hole-'+solvedTotal).innerHTML = `<span class="stamped" style="filter:grayscale(1); opacity:0.3;">${icon}</span>`;
-            
-            if(gameMode === 'hissan' || gameMode === 'hard') {
-                ["1", "10", "100", "1000"].forEach(s => {
-                    const box = document.getElementById('box-'+s);
-                    if(box.innerText !== "") box.classList.add('wrong');
-                });
-            }
+            playSound([200, 180], 0.4); fb.innerText = "❌"; fb.style.color = "gray";
+            document.getElementById('hole-'+solvedTotal).innerHTML = `<span>💨</span>`;
         }
         solvedTotal++;
         document.getElementById('count-display').innerText = "あと " + (10 - solvedTotal) + "もん";
         setTimeout(() => {
             fb.style.display = 'none';
             if(solvedTotal >= 10) showGoal();
-            else {
-                if(solvedTotal===3) currentLv=2; if(solvedTotal===7) currentLv=3;
-                const labels = {'easy':'超かんたん', 'level':'レベルアップ', 'hissan':'ひっさん', 'hard':'げきむず'};
-                document.getElementById('lv-display').innerText = labels[gameMode] + " Lv." + currentLv;
-                nextProblem(); isLocked = false;
-            }
-        }, 1200);
+            else { if(solvedTotal===3) currentLv=2; if(solvedTotal===7) currentLv=3; nextProblem(); isLocked = false; }
+        }, 1000);
     }
 
     function showGoal() {
         document.getElementById('goal-screen').style.display = 'flex';
-        document.getElementById('goal-stats').innerHTML = `10もんちゅう <b>${correctTotal}もん</b> せいかい！`;
-        if(correctTotal >= 8) {
-            document.getElementById('goal-title').innerText = "すごすぎる！ごうかく！";
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-        } else {
-            document.getElementById('goal-title').innerText = "がんばったね！";
-        }
+        document.getElementById('goal-stats').innerText = `10もん中 ${correctTotal}もん正解！`;
+        if(correctTotal >= 8) confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
     }
 
     function backToMenu() {
