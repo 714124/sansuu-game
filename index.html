@@ -2,924 +2,416 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>おしゃべりボード - かんたん特大ワン画面版</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>さんすうゲーム：横画面対応</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        /* スクロールや引っ張りを完全禁止して1画面にフィット */
-        body, html {
-            height: 100dvh;
-            width: 100dvw;
+        :root {
+            --bg-body: #fff5f5;
+            --accent-easy: #ff9ff3;
+            --accent-level: #00cec9;
+            --accent-hissan: #ff7675;
+            --accent-hard: #6c5ce7;
+            --stamp-bg: #fff9db;
+        }
+
+        body {
             margin: 0;
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            background-color: var(--bg-body);
+            height: 100svh;
             overflow: hidden;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            touch-action: none;
-            background-color: #f8fafc;
-            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
-            -webkit-user-select: none;
-            user-select: none;
-            overscroll-behavior: none;
+            touch-action: manipulation;
         }
 
-        /* アプリ外枠 */
-        .app-shell {
-            display: flex;
-            flex-direction: column;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            height: 100dvh;
-            width: 100dvw;
-            overflow: hidden;
-            touch-action: none;
-        }
-        
-        /* 上部おしゃべり表示エリア */
-        header {
-            flex-shrink: 0;
-            background: white;
-            border-bottom: 4px solid #cbd5e1;
-            padding: 8px;
-            display: flex;
-            height: 95px;
-            z-index: 20;
-        }
-
-        @media (orientation: landscape) {
-            header { height: 75px; padding: 4px; }
-            footer { height: 85px !important; padding: 4px !important; }
-            .sidebar { width: 190px !important; }
-        }
-
-        .main-container {
-            flex: 1;
-            display: flex;
-            overflow: hidden;
-            touch-action: none;
-            min-height: 0;
-        }
-
-        /* 左側サイドバー（種類タブ）：スクロール可能 */
-        .sidebar {
-            width: 150px; 
-            overflow-y: auto;
-            background: #f1f5f9;
-            border-right: 4px solid #cbd5e1;
-            padding: 8px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            height: 100%;
-            z-index: 10;
-            touch-action: pan-y;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        /* カテゴリーボタンを大きく引き伸ばす */
-        .sidebar > div {
-            flex: 1;
-            min-height: 70px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        @media (orientation: landscape) {
-            .sidebar { width: 190px; }
-            .sidebar > div { min-height: 55px; }
-        }
-
-        .content-area {
-            flex: 1;
-            overflow: hidden;
-            padding: 12px;
-            background: white;
-            display: flex;
-            flex-direction: column;
-            touch-action: none;
-            min-height: 0;
-        }
-
-        .content-area.has-kb {
-            padding: 4px !important;
-        }
-
-        /* カテゴリーボタン（超極太フォント、はっきりした色） */
-        .category-btn {
-            width: 100%;
-            height: 100%;
-            padding: 6px 4px;
-            border-radius: 16px;
-            font-weight: 900;
-            font-size: 1.25rem;
-            color: white;
-            text-align: center;
-            transition: all 0.1s;
-            line-height: 1.2;
-            box-shadow: 0 6px 0 rgba(0,0,0,0.18);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        #app-container {
             position: relative;
-            border: 2px solid rgba(0,0,0,0.05);
-        }
-        .category-btn:active {
-            transform: translateY(3px);
-            box-shadow: 0 2px 0 rgba(0,0,0,0.1);
-        }
-        .category-btn.active {
-            filter: brightness(0.85);
-            border: 4px solid #ffffff;
-            box-shadow: inset 0 4px 6px rgba(0,0,0,0.15);
+            height: 100svh;
+            display: flex;
+            flex-direction: column;
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
         }
 
-        /* テキスト表示ボックス */
-        .display-box {
-            flex: 1;
-            border: 4px solid #93c5fd;
-            border-radius: 20px;
-            background: #f0fdf4;
-            padding: 8px;
-            overflow-y: auto;
-            display: flex;
-            flex-wrap: wrap;
-            align-content: flex-start;
-            gap: 8px;
-            touch-action: pan-y;
+        .screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            background: white; z-index: 100;
         }
-        
-        /* フッターボタンエリア */
-        footer {
-            flex-shrink: 0;
-            background: #e2e8f0;
-            border-top: 4px solid #cbd5e1;
+
+        #start-screen { display: flex; overflow-y: auto; padding: 20px 0; }
+        .menu-title { font-size: 1.8rem; color: #2d3436; margin-bottom: 20px; text-align: center; }
+        .mode-container { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 12px; 
             padding: 10px;
-            padding-bottom: calc(10px + env(safe-area-inset-bottom));
-            display: flex;
-            gap: 12px;
-            z-index: 20;
-            height: 100px;
-            width: 100%;
+            width: 90%;
+        }
+        .mode-card {
+            padding: 15px; border-radius: 20px; border: 4px solid #eee;
+            cursor: pointer; transition: all 0.2s; text-align: center;
+            display: flex; flex-direction: column; align-items: center; gap: 5px;
+        }
+        .mode-card.easy { border-color: var(--accent-easy); background: #fff0f9; }
+        .mode-card.level { border-color: var(--accent-level); background: #f0ffff; }
+        .mode-card.hissan { border-color: var(--accent-hissan); background: #fffafa; }
+        .mode-card.hard { border-color: var(--accent-hard); background: #f3f0ff; }
+
+        .game-header {
+            height: 44px; display: flex; justify-content: space-between;
+            align-items: center; padding: 0 15px; background: #f8f9fa; flex-shrink: 0;
+            border-bottom: 1px solid #eee;
+        }
+        .level-badge { background: #fdcb6e; padding: 4px 12px; border-radius: 15px; font-weight: bold; font-size: 0.8rem; }
+
+        .main-game-area { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            padding: 10px; 
+            gap: 10px; 
+            min-height: 0; 
+            overflow: hidden; 
         }
         
-        /* アクションボタン */
-        .action-btn {
-            flex: 1;
-            height: 100%;
-            border-radius: 18px;
-            font-weight: 900;
-            font-size: 1.4rem;
-            box-shadow: 0 6px 0 rgba(0,0,0,0.15);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.1s;
-            white-space: nowrap;
-        }
-        .action-btn:active {
-            transform: translateY(4px);
-            box-shadow: 0 2px 0 rgba(0,0,0,0.1);
-        }
-
-        /* 縦2段（4枚）の時にスクロール不要で1画面にぴったり収まるよう、高さを動的計算 */
-        .card-grid-container {
-            flex: 1;
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            /* (100dvh - header[95px] - footer[100px] - content-areaパディング[24px] - gridの隙間[16px]) / 2 */
-            grid-auto-rows: calc((100dvh - 235px) / 2);
-            gap: 16px;
-            overflow-y: auto;
-            touch-action: pan-y;
-            -webkit-overflow-scrolling: touch;
-            padding-bottom: 20px;
-        }
-
-        @media (orientation: landscape) {
-            .card-grid-container {
-                /* 横向き時の高さ計算: (100dvh - header[75px] - footer[85px] - content-areaパディング[24px] - gridの隙間[16px]) / 2 */
-                grid-auto-rows: calc((100dvh - 200px) / 2);
-                gap: 12px;
-            }
-        }
-
-        /* コミュニケーションカード（特大サイズ・太枠） */
-        .card {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border-radius: 20px;
-            border: 5px solid #cbd5e1;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
-            cursor: pointer;
+        .problem-box { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
             position: relative;
-            background: white;
-            transition: transform 0.05s, background-color 0.05s;
-            padding: 12px;
-            height: 100%;
-        }
-        .card:active {
-            background-color: #e0f2fe;
-            transform: scale(0.96);
-            border-color: #3b82f6;
+            min-height: 0;
         }
 
-        /* カードの文字：サイズを調整して綺麗に収まるように */
-        .card-text {
-            font-size: 1.35rem;
-            font-weight: 900;
-            color: #1e293b;
-            margin-top: 8px;
-            text-align: center;
-            word-break: break-all;
-            line-height: 1.2;
-        }
-
-        /* 視覚シンボル用の特大絵文字：縮小に合わせてバランスの良い大きさに */
-        .card-emoji {
-            font-size: 3.2rem;
-            line-height: 1;
-        }
-
-        /* 文字表示タグ */
-        .tag {
-            background: white;
-            border: 3px solid #3b82f6;
-            padding: 6px 16px;
-            border-radius: 14px;
-            font-weight: 900;
-            font-size: 1.6rem;
-            color: #1e293b;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        /* 編集・削除バッジ：通常は隠れており、編集モード時のみ出現。赤のやさしいマイナスマークに */
-        .edit-badge {
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            background: #ef4444;
-            color: white;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            font-weight: 900;
-            border: 4px solid white;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-            z-index: 10;
-        }
-        .edit-badge:active {
-            background: #b91c1c;
-            transform: scale(0.9);
+        #level-problem-text { 
+            font-size: clamp(1.8rem, 8vh, 3.5rem); 
+            font-weight: bold; 
+            color: #2d3436; 
+            text-align: center; 
+            margin: 5px 0; 
         }
         
-        .no-scrollbar::-webkit-scrollbar { display: none; }
+        #visual-area { 
+            display: none; gap: 5px; flex-wrap: wrap; justify-content: center; 
+            margin-bottom: 5px; padding: 5px; border: 2px dashed #eee; border-radius: 15px; 
+            width: 90%; max-height: 40%; overflow-y: auto;
+        }
+        .apple { font-size: clamp(1.5rem, 6vh, 2.2rem); }
 
-        /* キーボード設定 */
-        .keyboard-layout {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            width: 100%;
-            justify-content: space-between;
-            min-height: 0;
+        #hissan-table { 
+            font-size: clamp(1.5rem, 7vh, 2.8rem); 
+            font-weight: bold; 
+            border-collapse: collapse; 
+            display: none; 
+        }
+        #hissan-table td { width: clamp(40px, 10vw, 60px); text-align: center; position: relative; padding: 2px; }
+        .line { border-bottom: 4px solid #2d3436; }
+        .op-sym { position: absolute; left: -30px; bottom: 5px; font-size: 2rem; }
+
+        .ans-slot {
+            width: 100%; height: clamp(50px, 14vh, 70px); 
+            border: 3px solid #eee; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center; 
+            font-size: clamp(1.5rem, 7vh, 2.5rem); cursor: pointer;
+        }
+        .ans-slot.active { border-color: #0984e3; background: #e1f5fe; }
+        .ans-slot.filled { color: #e17055; }
+        .ans-slot.wrong { border-color: #d63031; color: #d63031; background: #fff5f5; }
+
+        .keypad {
+            height: 35vh;
+            background: #f8f9fa; border-radius: 20px;
+            padding: 8px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+            flex-shrink: 0;
+        }
+        .num-btn {
+            background: white; border: 2px solid #dfe6e9; border-radius: 12px;
+            font-size: 1.4rem; font-weight: bold; cursor: pointer;
+            box-shadow: 0 3px 0 #dfe6e9; display: flex; align-items: center; justify-content: center;
+        }
+        .num-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #dfe6e9; }
+        .num-btn.back { background: #fab1a0; border-color: #e17055; box-shadow: 0 3px 0 #e17055; color: white; }
+        .num-btn.ok { background: #55efc4; border-color: #00b894; box-shadow: 0 3px 0 #00b894; color: white; }
+
+        .stamp-tray {
+            height: 48px; background: var(--stamp-bg); border-top: 3px dashed #ffeaa7;
+            display: flex; align-items: center; padding: 0 10px; gap: 4px; justify-content: space-around;
+            flex-shrink: 0;
+        }
+        .stamp-hole { width: 30px; height: 30px; border-radius: 50%; border: 2px dashed #ffeaa7; display: flex; align-items: center; justify-content: center; background: white; font-size: 14px; }
+
+        /* iPhone 横向きレイアウト */
+        @media screen and (max-height: 450px) {
+            .main-game-area {
+                flex-direction: row; /* 横に並べる */
+                align-items: center;
+                gap: 20px;
+            }
+            .problem-box {
+                flex: 1.2;
+                height: 100%;
+            }
+            .keypad {
+                flex: 1;
+                height: 100%;
+                grid-template-columns: repeat(4, 1fr); /* 4列にして高さを節約 */
+                padding: 4px;
+            }
+            .num-btn { font-size: 1.2rem; height: auto; }
+            .game-header, .stamp-tray { height: 32px; font-size: 0.7rem; }
+            .stamp-hole { width: 22px; height: 22px; font-size: 10px; }
+            
+            #visual-area { max-height: 50%; }
+            #hissan-table { font-size: 1.8rem; }
+            #hissan-table td { width: 40px; }
+            .ans-slot { height: 45px; font-size: 1.8rem; }
+            
+            /* キーパッドの並びを4列用に調整 */
+            .num-btn:nth-child(10) { grid-column: span 1; }
+            .num-btn.back { grid-column: span 1; }
+            .num-btn.ok { grid-column: span 2; }
         }
 
-        .kana-grid {
-            display: grid;
-            grid-template-columns: repeat(10, 1fr);
-            direction: rtl;
-            gap: 6px;
-            flex: 1;
-            align-content: stretch;
-            touch-action: none;
-            min-height: 0;
-        }
-        .kana-btn {
-            width: 100%;
-            height: 100%;
-            background: white;
-            border: 3px solid #cbd5e1;
-            border-radius: 16px;
-            font-weight: 900;
-            font-size: clamp(1.2rem, 4.5vh, 2.4rem);
-            color: #1e293b;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 0 #94a3b8;
-            transition: background-color 0.05s, transform 0.05s;
-        }
-        .kana-btn:active {
-            background-color: #dbeafe;
-            transform: translateY(3px);
-            box-shadow: 0 1px 0 #94a3b8;
-        }
-        .kana-btn-sub {
-            background-color: #f0fdf4;
-            border-color: #86efac;
-            color: #15803d;
-            box-shadow: 0 4px 0 #166534;
-        }
-        .kana-btn-sub:active {
-            background-color: #dcfce7;
-            box-shadow: 0 1px 0 #166534;
-        }
-        .kana-btn-empty {
-            background-color: #f1f5f9;
-            border-color: #e2e8f0;
-            box-shadow: none;
-            pointer-events: none;
-            opacity: 0.4;
-        }
+        #feedback { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 80px; z-index: 500; display: none; pointer-events: none; }
     </style>
 </head>
 <body>
 
-    <div class="app-shell">
-        <!-- 表示パネル -->
-        <header>
-            <div id="display-area" class="display-box no-scrollbar"></div>
-        </header>
-
-        <!-- メイン画面（サイドバー ＋ カード or キーボード） -->
-        <div class="main-container">
-            <aside id="sidebar" class="sidebar no-scrollbar"></aside>
-            <main class="content-area">
-                <!-- 編集モードの時だけ上部にお知らせを出す -->
-                <div id="edit-mode-banner" class="hidden bg-red-500 text-white text-center py-2 px-4 rounded-xl mb-3 font-black text-lg animate-pulse">
-                    ⚠️ いまは 「なおす・へらす」 モードです。おわったら ＋/ー をおしてね。
-                </div>
-
-                <!-- カードグリッド：押し間違えを防ぐために「2列」に固定してアイコンを巨大化 -->
-                <div id="card-grid" class="card-grid-container no-scrollbar"></div>
-                
-                <!-- ひらがなキーボード -->
-                <div id="keyboard-area" class="hidden h-full w-full">
-                    <div class="keyboard-layout">
-                        <div id="kana-container" class="kana-grid"></div>
-                        <div class="flex gap-4 mt-2 w-full flex-shrink-0">
-                            <button onclick="removeLastChar()" class="flex-1 bg-gray-200 py-3 rounded-2xl font-black text-gray-700 text-xl active:bg-gray-300 shadow-md border-b-4 border-gray-400">1つ けす</button>
-                            <button onclick="addChar(' ')" class="flex-1 bg-gray-100 py-3 rounded-2xl font-black text-gray-500 text-xl active:bg-gray-200 shadow-md border-b-4 border-gray-300">くうはく</button>
-                        </div>
-                    </div>
-                </div>
-            </main>
-        </div>
-
-        <!-- フッター -->
-        <footer>
-            <button onclick="clearAll()" class="action-btn bg-red-100 text-red-600 border-4 border-red-300">ぜんぶ けす</button>
-            <button onclick="speakAll()" id="speak-btn" class="action-btn bg-blue-600 text-white text-4xl hidden border-b-8 border-blue-800">📢</button>
-            <button onclick="toggleKeyboard()" id="kb-toggle" class="action-btn bg-green-500 text-white border-b-8 border-green-700">もじをうつ</button>
-            <!-- ＋/ー ボタン -->
-            <button id="add-btn" onclick="openChoiceModal()" class="action-btn bg-orange-400 text-white text-3xl border-b-8 border-orange-600 font-black">＋ / ー</button>
-        </footer>
-    </div>
-
-    <!-- ==================== カスタムダイアログ（モーダル） ==================== -->
-    
-    <!-- 1. 「＋ / ー」 選択モーダル -->
-    <div id="choice-modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl border-4 border-slate-300">
-            <h3 class="font-black mb-6 text-2xl text-center text-slate-800">なにを する？</h3>
-            <div class="flex flex-col gap-4">
-                <button onclick="openAddModal()" class="w-full py-4 bg-blue-50 text-blue-600 rounded-2xl font-black text-xl border-4 border-blue-200 active:scale-95 transition-transform">➕ カードを つくる</button>
-                <button onclick="openAddCatModal()" class="w-full py-4 bg-orange-50 text-orange-600 rounded-2xl font-black text-xl border-4 border-orange-200 active:scale-95 transition-transform">➕ しゅるいを つくる</button>
-                <!-- へらす・なおすモードのトグルボタン -->
-                <button id="toggle-edit-mode-btn" onclick="toggleEditMode()" class="w-full py-4 bg-red-50 text-red-600 rounded-2xl font-black text-xl border-4 border-red-200 active:scale-95 transition-transform">❌ へらす ・ なおす</button>
-                <button onclick="closeChoiceModal()" class="w-full py-3 mt-2 bg-gray-100 text-gray-500 rounded-2xl font-black">やめる</button>
-            </div>
+<div id="app-container">
+    <div id="start-screen" class="screen">
+        <h1 class="menu-title">どのゲームであそぶ？</h1>
+        <div class="mode-container">
+            <div class="mode-card easy" onclick="startGame('easy')"><span>🍎</span> かぞえよう</div>
+            <div class="mode-card level" onclick="startGame('level')"><span>⚡</span> アップ</div>
+            <div class="mode-card hissan" onclick="startGame('hissan')"><span>📝</span> ひっさん</div>
+            <div class="mode-card hard" onclick="startGame('hard')"><span>👿</span> げきむず</div>
         </div>
     </div>
 
-    <!-- 2. カード作成モーダル -->
-    <div id="add-modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl border-4 border-blue-300">
-            <h3 class="font-black mb-1 text-2xl text-center text-slate-800">カードを つくる</h3>
-            <p id="target-category-label" class="text-center text-md font-bold text-slate-500 mb-4"></p>
-            
-            <label class="block text-md font-black text-slate-600 mb-1">おしゃべりする ことば</label>
-            <input type="text" id="new-text" placeholder="例：こんにちは" class="w-full border-4 border-slate-200 p-4 rounded-2xl mb-4 focus:border-blue-400 outline-none text-xl font-bold">
-            
-            <label class="block text-md font-black text-slate-600 mb-1">え文字（え文字を1ついれてね）</label>
-            <input type="text" id="new-icon" placeholder="例：😊" class="w-full border-4 border-slate-200 p-4 rounded-2xl mb-6 focus:border-blue-400 outline-none text-2xl text-center">
-            
-            <div class="flex gap-4">
-                <button onclick="closeAddModal()" class="flex-1 py-4 bg-gray-100 rounded-2xl font-black text-gray-600 border-b-4 border-gray-300">やめる</button>
-                <button onclick="saveNewPhrase()" class="flex-1 py-4 bg-blue-600 text-white rounded-2xl font-black text-xl shadow-lg border-b-4 border-blue-800">できた！</button>
-            </div>
+    <div class="game-header">
+        <div class="level-badge" id="lv-display">Lv.1</div>
+        <div id="count-display">あと 10もん</div>
+    </div>
+
+    <div class="main-game-area">
+        <div class="problem-box">
+            <div id="feedback"></div>
+            <div id="visual-area"></div>
+            <div id="level-problem-text"></div>
+            <table id="hissan-table">
+                <tr><td></td><td id="h-d1-100"></td><td id="h-d1-10"></td><td id="h-d1-1"></td></tr>
+                <tr class="line">
+                    <td><span class="op-sym">+</span></td>
+                    <td id="h-d2-100"></td><td id="h-d2-10"></td><td id="h-d2-1"></td>
+                </tr>
+                <tr>
+                    <td><div class="ans-slot" id="box-1000" onclick="setStep('1000')"></div></td>
+                    <td><div class="ans-slot" id="box-100" onclick="setStep('100')"></div></td>
+                    <td><div class="ans-slot" id="box-10" onclick="setStep('10')"></div></td>
+                    <td><div class="ans-slot" id="box-1" onclick="setStep('1')"></div></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="keypad" id="main-keypad">
+            <button class="num-btn" onclick="tapNum(7)">7</button>
+            <button class="num-btn" onclick="tapNum(8)">8</button>
+            <button class="num-btn" onclick="tapNum(9)">9</button>
+            <button class="num-btn" onclick="tapNum(4)">4</button>
+            <button class="num-btn" onclick="tapNum(5)">5</button>
+            <button class="num-btn" onclick="tapNum(6)">6</button>
+            <button class="num-btn" onclick="tapNum(1)">1</button>
+            <button class="num-btn" onclick="tapNum(2)">2</button>
+            <button class="num-btn" onclick="tapNum(3)">3</button>
+            <button class="num-btn" onclick="tapNum(0)">0</button>
+            <button class="num-btn back" onclick="tapBack()">消す</button>
+            <button class="num-btn ok" id="ok-btn" onclick="tapOK()">OK</button>
         </div>
     </div>
 
-    <!-- 3. カテゴリー追加モーダル -->
-    <div id="add-cat-modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl border-4 border-orange-300">
-            <h3 class="font-black mb-4 text-2xl text-center text-slate-800">しゅるいを つくる</h3>
-            <label class="block text-md font-black text-slate-600 mb-1">しゅるいの なまえ</label>
-            <input type="text" id="new-cat-name" placeholder="例：どうぶつ" class="w-full border-4 border-slate-200 p-4 rounded-2xl mb-6 focus:border-orange-400 outline-none text-xl font-bold">
-            <div class="flex gap-4">
-                <button onclick="closeAddCatModal()" class="flex-1 py-4 bg-gray-100 rounded-2xl font-black text-gray-600 border-b-4 border-gray-300">やめる</button>
-                <button onclick="saveNewCategory()" class="flex-1 py-4 bg-orange-500 text-white rounded-2xl font-black text-xl shadow-lg border-b-4 border-orange-700">できた！</button>
-            </div>
-        </div>
+    <div class="stamp-tray" id="stamp-tray"></div>
+
+    <div id="goal-screen" class="screen">
+        <div style="font-size:60px;">🎖️</div>
+        <h2 id="goal-title">おわり！</h2>
+        <div id="goal-stats" style="margin-bottom: 20px;"></div>
+        <button class="num-btn" style="padding: 10px 20px; background:#55efc4;" onclick="backToMenu()">もどる</button>
     </div>
+</div>
 
-    <!-- 4. カスタム確認ダイアログ -->
-    <div id="confirm-modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl border-4 border-red-300 text-center">
-            <div class="text-6xl mb-4">⚠️</div>
-            <h3 id="confirm-title" class="font-black mb-2 text-2xl text-slate-800">けしますか？</h3>
-            <p id="confirm-message" class="text-slate-600 mb-6 font-bold text-lg"></p>
-            <div class="flex gap-4">
-                <button id="confirm-cancel-btn" class="flex-1 py-4 bg-gray-100 rounded-2xl font-black text-gray-600 border-b-4 border-gray-300 text-lg">やめる</button>
-                <button id="confirm-ok-btn" class="flex-1 py-4 bg-red-500 text-white rounded-2xl font-black text-lg border-b-4 border-red-700">けす！</button>
-            </div>
-        </div>
-    </div>
+<script>
+    let audioCtx = null;
+    function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    function playSound(freqs, duration=0.2) {
+        if (!audioCtx) return;
+        const now = audioCtx.currentTime;
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(0.05, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
+        freqs.forEach(f => {
+            const osc = audioCtx.createOscillator();
+            osc.frequency.setValueAtTime(f, now);
+            osc.connect(gain); osc.start(); osc.stop(now + duration);
+        });
+        gain.connect(audioCtx.destination);
+    }
 
-    <!-- 5. 「カード設定」選択モーダル -->
-    <div id="card-edit-modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl border-4 border-red-400 text-center">
-            <div class="text-5xl mb-4">⚙️</div>
-            <h3 class="font-black mb-2 text-2xl text-slate-800">カードの せってい</h3>
-            <p id="editing-card-name" class="text-xl font-bold text-slate-500 mb-6"></p>
-            <div class="flex flex-col gap-4">
-                <button id="card-rename-btn" class="w-full py-4 bg-blue-50 text-blue-600 rounded-2xl font-black text-lg border-4 border-blue-200 active:scale-95">なまえを かえる</button>
-                <button id="card-delete-btn" class="w-full py-4 bg-red-50 text-red-600 rounded-2xl font-black text-lg border-4 border-red-200 active:scale-95">このカードを けす</button>
-                <button onclick="closeCardEditModal()" class="w-full py-3 mt-2 bg-gray-100 text-gray-500 rounded-2xl font-black">やめる</button>
-            </div>
-        </div>
-    </div>
+    const animals = ["🐶","🐱","🐰","🐼","🐻","🦊","🦁","🐮"];
+    let gameMode = '', currentLv = 1, solvedTotal = 0, correctTotal = 0, problem = {}, currentStep = "1", userInput = "", isLocked = false;
+    let hissanAnswers = { "1": "", "10": "", "100": "", "1000": "" };
 
-    <!-- 6. カード名変更入力モーダル -->
-    <div id="card-rename-modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl border-4 border-blue-400">
-            <h3 class="font-black mb-4 text-2xl text-center text-slate-800">なまえを かえる</h3>
-            <input type="text" id="rename-card-input" class="w-full border-4 border-slate-200 p-4 rounded-2xl mb-6 focus:border-blue-400 outline-none text-xl font-bold">
-            <div class="flex gap-4">
-                <button onclick="closeCardRenameModal()" class="flex-1 py-4 bg-gray-100 rounded-2xl font-black text-gray-600 border-b-4 border-gray-300">やめる</button>
-                <button id="save-rename-btn" class="flex-1 py-4 bg-blue-600 text-white rounded-2xl font-black text-xl shadow-lg border-b-4 border-blue-800">かえる</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ==================== スクリプト ==================== -->
-    <script>
-        // 最初から用意するカテゴリーの種類
-        const defaultCategories = [
-            { id: 'greet', name: 'あいさつ', color: 'bg-emerald-500', custom: false },
-            { id: 'request', name: 'おねがい', color: 'bg-amber-500', custom: false },
-            { id: 'number', name: 'すうじ', color: 'bg-indigo-500', custom: false },
-            { id: 'feel', name: 'きもち', color: 'bg-rose-500', custom: false }
-        ];
-
-        // 最初からはカード（アイコン）を作らず、ユーザーが自由につくれるように空にする
-        const defaultPhrases = [];
-
-        let categories = JSON.parse(localStorage.getItem('kantan_board_cats')) || defaultCategories;
-        let phrases = JSON.parse(localStorage.getItem('kantan_board_phrases')) || defaultPhrases;
+    function startGame(mode) {
+        initAudio(); gameMode = mode; solvedTotal = 0; correctTotal = 0; currentLv = 1; isLocked = false;
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('goal-screen').style.display = 'none';
         
-        // 50音表（濁点・小文字・長音）
-        const kanaStd = [
-            ['あ','い','う','え','お'],
-            ['か','き','く','け','こ'],
-            ['さ','し','す','せ','そ'],
-            ['た','ち','つ','て','と'],
-            ['な','に','ぬ','ね','の'],
-            ['は','ひ','ふ','へ','ほ'],
-            ['ま','み','む','め','も'],
-            ['や','゛','ゆ','゜','よ'], 
-            ['ら','り','る','れ','ろ'],
-            ['わ','を','ん','小','ー']
-        ];
+        const tray = document.getElementById('stamp-tray'); tray.innerHTML = '';
+        for(let i=0; i<10; i++) {
+            const hole = document.createElement('div'); hole.className = 'stamp-hole'; hole.id = 'hole-' + i;
+            tray.appendChild(hole);
+        }
+        nextProblem();
+    }
 
-        let currentCat = 'greet';
-        let selected = [];
-        let speechVoice = null;
-        let editingCard = null; // 現在編集中のカード情報
-        let isEditMode = false; // 現在へらす・なおす（編集）モードかどうか
+    function nextProblem() {
+        userInput = ""; hissanAnswers = { "1": "", "10": "", "100": "", "1000": "" };
+        const visual = document.getElementById('visual-area');
+        const probText = document.getElementById('level-problem-text');
+        const table = document.getElementById('hissan-table');
+        visual.style.display = 'none'; probText.style.display = 'none'; table.style.display = 'none';
 
-        // 初期化
-        function init() {
-            initSpeech();
-            renderSidebar();
-            renderCards();
-            
-            // iPad等の引っ張りスクロール対策
-            document.addEventListener('touchmove', function(e) {
-                if (e.target.closest('.sidebar, .display-box, .card-grid-container')) {
-                    return; 
+        let n1, n2, ans;
+        if(gameMode === 'easy') {
+            n1 = r(5); n2 = r(5); ans = n1 + n2;
+            visual.style.display = 'flex'; probText.style.display = 'block';
+            visual.innerHTML = "";
+            for(let i=0; i<n1; i++) visual.innerHTML += '<span class="apple">🍎</span>';
+            visual.innerHTML += '<span style="align-self:center;margin:0 5px;">と</span>';
+            for(let i=0; i<n2; i++) visual.innerHTML += '<span class="apple">🍏</span>';
+            problem = { n1, n2, ans }; renderLevelText();
+        } else if(gameMode === 'level') {
+            n1 = (currentLv===1)?r(5): (currentLv===2?r(15,5):r(30,10));
+            n2 = (currentLv===1)?r(5): (currentLv===2?r(15,5):r(30,10));
+            ans = n1 + n2; probText.style.display = 'block';
+            problem = { n1, n2, ans }; renderLevelText();
+        } else {
+            table.style.display = 'table';
+            if(gameMode === 'hissan') { n1 = r(currentLv*30, 1); n2 = r(currentLv*30, 1); }
+            else { n1 = r(900, 100); n2 = r(900, 100); }
+            ans = n1 + n2; problem = { n1, n2, ans }; setupHissan(n1, n2, ans);
+        }
+    }
+
+    function setupHissan(n1, n2, ans) {
+        const setH = (num, row) => {
+            const s = num.toString().padStart(3, ' ');
+            document.getElementById(`h-d${row}-100`).innerText = s[0].trim();
+            document.getElementById(`h-d${row}-10`).innerText = s[1].trim();
+            document.getElementById(`h-d${row}-1`).innerText = s[2];
+        };
+        setH(n1, 1); setH(n2, 2);
+        const ansStr = ans.toString();
+        ["1", "10", "100", "1000"].forEach(id => {
+            const b = document.getElementById('box-'+id); b.innerText = ""; b.className = 'ans-slot';
+            const show = (ansStr.length >= id.length || (id==="10" && ansStr.length>=2) || (id==="100" && ansStr.length>=3));
+            b.parentElement.style.visibility = show ? 'visible' : 'hidden';
+        });
+        currentStep = "1"; updateHissanFocus();
+    }
+
+    function renderLevelText() {
+        const display = userInput === "" ? "?" : userInput;
+        document.getElementById('level-problem-text').innerHTML = `${problem.n1} + ${problem.n2} = <span style="color:#0984e3">${display}</span>`;
+    }
+
+    function r(max, min=1) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+    function setStep(id) { if(!isLocked) { currentStep = id; updateHissanFocus(); playSound([660], 0.05); } }
+
+    function updateHissanFocus() {
+        document.querySelectorAll('.ans-slot').forEach(s => s.classList.remove('active'));
+        const activeBox = document.getElementById('box-' + currentStep);
+        if(activeBox) activeBox.classList.add('active');
+    }
+
+    function tapNum(n) {
+        if(isLocked) return;
+        playSound([440, 880], 0.1);
+        if(gameMode === 'easy' || gameMode === 'level') {
+            userInput += n.toString(); renderLevelText();
+        } else {
+            const b = document.getElementById('box-' + currentStep);
+            b.innerText = n; b.classList.add('filled');
+            hissanAnswers[currentStep] = n.toString();
+            // 自動移動
+            const steps = ["1", "10", "100", "1000"];
+            let idx = steps.indexOf(currentStep);
+            if(idx < steps.length-1) {
+                let next = steps[idx+1];
+                if(document.getElementById('box-'+next).parentElement.style.visibility !== 'hidden') {
+                    currentStep = next; updateHissanFocus();
                 }
-                e.preventDefault();
-            }, { passive: false });
-        }
-
-        // 音声エンジン設定
-        function initSpeech() {
-            const loadVoices = () => {
-                const voices = window.speechSynthesis.getVoices();
-                speechVoice = voices.find(v => v.lang.includes('ja-JP') || v.lang.includes('ja'));
-            };
-            if (window.speechSynthesis.onvoiceschanged !== undefined) {
-                window.speechSynthesis.onvoiceschanged = loadVoices;
-            }
-            loadVoices();
-        }
-
-        // サイドバーカテゴリーの描画
-        function renderSidebar() {
-            const side = document.getElementById('sidebar');
-            side.innerHTML = categories.map(c => `
-                <div class="relative w-full">
-                    <button onclick="setCat('${c.id}')" class="category-btn ${c.color} ${currentCat === c.id ? 'active' : ''}">${c.name}</button>
-                    <!-- カテゴリの削除ボタンも編集モード中のみ表示 -->
-                    ${c.custom && isEditMode ? `<button onclick="triggerDeleteCategory('${c.id}', event)" class="del-badge">×</button>` : ''}
-                </div>
-            `).join('');
-        }
-
-        // カテゴリー切り替え
-        function setCat(id) {
-            currentCat = id;
-            document.getElementById('keyboard-area').classList.add('hidden');
-            document.getElementById('card-grid').classList.remove('hidden');
-            document.getElementById('kb-toggle').innerText = "もじをうつ";
-            document.getElementById('speak-btn').classList.add('hidden');
-            document.querySelector('.content-area').classList.remove('has-kb');
-            renderSidebar();
-            renderCards();
-        }
-
-        // カード描画
-        function renderCards() {
-            const grid = document.getElementById('card-grid');
-            grid.innerHTML = '';
-
-            const list = phrases.filter(p => p.cat === currentCat);
-            if (list.length === 0) {
-                grid.innerHTML = `
-                    <div class="col-span-full text-center py-20 px-4">
-                        <div class="text-6xl mb-4">✨</div>
-                        <div class="text-slate-500 font-black text-2xl mb-2">まだ カードが ありません</div>
-                        <div class="text-blue-500 font-bold text-lg leading-relaxed">
-                            したの <span class="bg-slate-100 px-2 py-1 rounded-lg border-2 border-slate-300">＋ / ー</span> ボタンを おして<br>
-                            じぶんだけの カードを つくってね！
-                        </div>
-                    </div>
-                `;
-                return;
-            }
-            list.forEach(p => {
-                const card = document.createElement('div');
-                card.className = "card";
-                
-                // 編集モードONの場合、右上に赤い「ー」マークの編集ボタンを出す
-                const showEditBadge = isEditMode;
-                
-                card.innerHTML = `
-                    <span class="card-emoji">${p.icon}</span>
-                    <span class="card-text">${p.text}</span>
-                    ${showEditBadge ? `<button onclick="openCardEditModal('${p.text}', '${p.cat}', event)" class="edit-badge">ー</button>` : ''}
-                `;
-                card.onclick = () => addPhraseToDisplay(p.text);
-                grid.appendChild(card);
-            });
-        }
-
-        // へらす・なおす（編集）モードのトグル切り替え
-        function toggleEditMode() {
-            isEditMode = !isEditMode;
-            closeChoiceModal();
-            
-            const banner = document.getElementById('edit-mode-banner');
-            
-            if (isEditMode) {
-                banner.classList.remove('hidden');
-                document.getElementById('add-btn').classList.replace('bg-orange-400', 'bg-red-500');
-                document.getElementById('add-btn').classList.replace('border-orange-600', 'border-red-700');
-            } else {
-                banner.classList.add('hidden');
-                document.getElementById('add-btn').classList.replace('bg-red-500', 'bg-orange-400');
-                document.getElementById('add-btn').classList.replace('border-red-700', 'border-orange-600');
-            }
-            
-            renderSidebar();
-            renderCards();
-        }
-
-        // キーボード表示切り替え
-        function toggleKeyboard() {
-            const area = document.getElementById('keyboard-area');
-            const grid = document.getElementById('card-grid');
-            const speakBtn = document.getElementById('speak-btn');
-            const contentArea = document.querySelector('.content-area');
-            const isHidden = area.classList.contains('hidden');
-            
-            area.classList.toggle('hidden', !isHidden);
-            grid.classList.toggle('hidden', isHidden);
-            speakBtn.classList.toggle('hidden', !isHidden);
-            contentArea.classList.toggle('has-kb', isHidden);
-
-            if (isHidden) renderKb();
-            document.getElementById('kb-toggle').innerText = isHidden ? "カードにもどる" : "もじをうつ";
-        }
-
-        // 50音キーボードの描画
-        function renderKb() {
-            const cont = document.getElementById('kana-container');
-            cont.innerHTML = kanaStd.map(col => `
-                <div class="flex flex-col gap-1.5 h-full">
-                    ${col.map(char => {
-                        if (!char) return `<div class="kana-btn-empty flex-1"></div>`;
-                        const isSubKey = ['゛', '゜', '小', 'ー'].includes(char);
-                        const btnClass = isSubKey ? 'kana-btn kana-btn-sub flex-1' : 'kana-btn flex-1';
-                        return `<button onclick="addChar('${char}')" class="${btnClass}">${char}</button>`;
-                    }).join('')}
-                </div>
-            `).join('');
-        }
-
-        // ひらがなの文字変形（濁点・半濁点・小書き・長音）
-        function applyDakuten() {
-            if (selected.length === 0) return;
-            const lastIdx = selected.length - 1;
-            const char = selected[lastIdx];
-            const map = {
-                'か':'が', 'き':'ぎ', 'く':'ぐ', 'け':'げ', 'こ':'ご',
-                'さ':'ざ', 'し':'じ', 'す':'ず', 'せ':'ぜ', 'そ':'ぞ',
-                'た':'だ', 'ち':'ぢ', 'つ':'づ', 'て':'で', 'と':'ど',
-                'は':'ば', 'ひ':'び', 'ふ':'ぶ', 'へ':'べ', 'ほ':'ぼ',
-                'が':'か', 'ぎ':'き', 'ぐ':'く', 'げ':'け', 'ご':'こ',
-                'ざ':'さ', 'じ':'し', 'ず':'す', 'ぜ':'せ', 'ぞ':'そ',
-                'だ':'た', 'ぢ':'ち', 'づ':'つ', 'て':'で', 'と':'ど',
-                'ば':'は', 'び':'ひ', 'ぶ':'ふ', 'べ':'へ', 'ぼ':'ほ'
-            };
-            if (map[char]) {
-                selected[lastIdx] = map[char];
-                updateDisplay();
-                speak(map[char]);
             }
         }
+    }
 
-        function applyHandakuten() {
-            if (selected.length === 0) return;
-            const lastIdx = selected.length - 1;
-            const char = selected[lastIdx];
-            const map = {
-                'は':'ぱ', 'ひ':'ぴ', 'ふ':'ぷ', 'へ':'ぺ', 'ほ':'ぽ',
-                'ば':'ぱ', 'び':'ぴ', 'ぶ':'ぷ', 'べ':'ぺ', 'ぼ':'ぽ',
-                'ぱ':'は', 'ぴ':'ひ', 'ぷ':'ふ', 'ぺ':'へ', 'ぽ':'ほ'
-            };
-            if (map[char]) {
-                selected[lastIdx] = map[char];
-                updateDisplay();
-                speak(map[char]);
-            }
+    function tapBack() {
+        if(isLocked) return;
+        if(gameMode==='easy' || gameMode==='level') { userInput = userInput.slice(0,-1); renderLevelText(); }
+        else { const b = document.getElementById('box-'+currentStep); b.innerText = ""; hissanAnswers[currentStep] = ""; }
+    }
+
+    function tapOK() {
+        if(isLocked || (userInput === "" && (gameMode==='easy'||gameMode==='level'))) return;
+        let correct = false;
+        if(gameMode==='easy' || gameMode==='level') {
+            correct = parseInt(userInput) === problem.ans;
+        } else {
+            const finalInput = (hissanAnswers["1000"] + hissanAnswers["100"] + hissanAnswers["10"] + hissanAnswers["1"]).trim();
+            if(finalInput === "") return;
+            correct = parseInt(finalInput) === problem.ans;
         }
+        checkResult(correct);
+    }
 
-        function applySmall() {
-            if (selected.length === 0) return;
-            const lastIdx = selected.length - 1;
-            const char = selected[lastIdx];
-            const map = {
-                'あ':'ぁ', 'い':'ぃ', 'う':'ぅ', 'え':'ぇ', 'お':'ぉ',
-                'や':'ゃ', 'ゆ':'ゅ', 'よ':'ょ', 'つ':'っ', 'わ':'ゎ',
-                'ぁ':'あ', 'ぃ':'い', 'ぅ':'う', 'ぇ':'え', 'ぉ':'お',
-                'ゃ':'や', 'ゅ':'ゆ', 'ょ':'よ', 'っ':'つ', 'ゎ':'わ'
-            };
-            if (map[char]) {
-                selected[lastIdx] = map[char];
-                updateDisplay();
-                speak(map[char]);
-            }
+    function checkResult(isCorrect) {
+        isLocked = true;
+        const fb = document.getElementById('feedback');
+        fb.style.display = 'block';
+        if(isCorrect) {
+            playSound([880, 1320], 0.3); fb.innerText = "⭕"; fb.style.color = "red";
+            correctTotal++;
+            document.getElementById('hole-'+solvedTotal).innerHTML = `<span>${animals[r(7,0)]}</span>`;
+        } else {
+            playSound([200, 180], 0.4); fb.innerText = "❌"; fb.style.color = "gray";
+            document.getElementById('hole-'+solvedTotal).innerHTML = `<span>💨</span>`;
         }
+        solvedTotal++;
+        document.getElementById('count-display').innerText = "あと " + (10 - solvedTotal) + "もん";
+        setTimeout(() => {
+            fb.style.display = 'none';
+            if(solvedTotal >= 10) showGoal();
+            else { if(solvedTotal===3) currentLv=2; if(solvedTotal===7) currentLv=3; nextProblem(); isLocked = false; }
+        }, 1000);
+    }
 
-        // 文字入力
-        function addChar(c) {
-            if (c === '゛') {
-                applyDakuten();
-            } else if (c === '゜') {
-                applyHandakuten();
-            } else if (c === '小') {
-                applySmall();
-            } else {
-                selected.push(c); 
-                updateDisplay();
-                speak(c);
-            }
-        }
+    function showGoal() {
+        document.getElementById('goal-screen').style.display = 'flex';
+        document.getElementById('goal-stats').innerText = `10もん中 ${correctTotal}もん正解！`;
+        if(correctTotal >= 8) confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+    }
 
-        // 表示部にフレーズ（カードの言葉）を追加して喋る
-        function addPhraseToDisplay(text) {
-            selected.push(text);
-            updateDisplay();
-            speak(text);
-        }
-
-        function removeLastChar() {
-            if (selected.length === 0) return;
-            selected.pop();
-            updateDisplay();
-        }
-
-        function clearAll() { 
-            selected = []; 
-            updateDisplay(); 
-        }
-
-        function updateDisplay() {
-            const area = document.getElementById('display-area');
-            area.innerHTML = selected.map(t => `<div class="tag">${t}</div>`).join('');
-            area.scrollTop = area.scrollHeight;
-        }
-
-        function speakAll() {
-            const fullText = selected.join('');
-            if (fullText) speak(fullText);
-        }
-
-        function speak(text) {
-            if (!text) return;
-            window.speechSynthesis.cancel();
-            const u = new SpeechSynthesisUtterance(text);
-            if (speechVoice) u.voice = speechVoice;
-            u.lang = 'ja-JP';
-            u.rate = 0.9; // 少しだけゆっくり、聞き取りやすく
-            window.speechSynthesis.speak(u);
-        }
-
-        // ==================== モーダル関連処理 ====================
-
-        function openChoiceModal() { 
-            // 選択画面を開くときに、現在のモードに応じて「へらす・なおす」のボタンテキストを変化させる
-            const editBtn = document.getElementById('toggle-edit-mode-btn');
-            if (isEditMode) {
-                editBtn.innerText = "おわる (あんぜんモード)";
-                editBtn.classList.replace('bg-red-50', 'bg-green-50');
-                editBtn.classList.replace('text-red-600', 'text-green-600');
-                editBtn.classList.replace('border-red-200', 'border-green-200');
-            } else {
-                editBtn.innerText = "❌ へらす ・ なおす";
-                editBtn.classList.replace('bg-green-50', 'bg-red-50');
-                editBtn.classList.replace('text-green-600', 'text-red-600');
-                editBtn.classList.replace('border-green-200', 'border-red-200');
-            }
-            document.getElementById('choice-modal').classList.remove('hidden'); 
-        }
-        function closeChoiceModal() { document.getElementById('choice-modal').classList.add('hidden'); }
-        
-        function openAddModal() { 
-            closeChoiceModal(); 
-            const catInfo = categories.find(c => c.id === currentCat); 
-            document.getElementById('target-category-label').innerText = `いれるところ：${catInfo.name}`; 
-            document.getElementById('add-modal').classList.remove('hidden'); 
-        }
-        function closeAddModal() { document.getElementById('add-modal').classList.add('hidden'); }
-        
-        function openAddCatModal() { 
-            closeChoiceModal(); 
-            document.getElementById('add-cat-modal').classList.remove('hidden'); 
-        }
-        function closeAddCatModal() { document.getElementById('add-cat-modal').classList.add('hidden'); }
-
-        // カード設定（編集）モーダル
-        function openCardEditModal(text, cat, e) {
-            e.stopPropagation(); // 通常タップ（読み上げ）イベントの発生を阻止！
-            editingCard = { text, cat };
-            document.getElementById('editing-card-name').innerText = `「${text}」のカード`;
-            document.getElementById('card-edit-modal').classList.remove('hidden');
-
-            // 削除ボタンの挙動をバインド
-            document.getElementById('card-delete-btn').onclick = () => {
-                closeCardEditModal();
-                triggerDeletePhrase(editingCard.text, editingCard.cat);
-            };
-
-            // 名前変更ボタンの挙動をバインド
-            document.getElementById('card-rename-btn').onclick = () => {
-                closeCardEditModal();
-                openCardRenameModal(editingCard.text);
-            };
-        }
-        function closeCardEditModal() {
-            document.getElementById('card-edit-modal').classList.add('hidden');
-            editingCard = null;
-        }
-
-        // カード名前変更モーダル
-        function openCardRenameModal(oldText) {
-            document.getElementById('rename-card-input').value = oldText;
-            document.getElementById('card-rename-modal').classList.remove('hidden');
-
-            document.getElementById('save-rename-btn').onclick = () => {
-                const newText = document.getElementById('rename-card-input').value.trim();
-                if (newText && newText !== oldText) {
-                    phrases = phrases.map(p => {
-                        if (p.text === oldText && p.cat === editingCard.cat) {
-                            return { ...p, text: newText };
-                        }
-                        return p;
-                    });
-                    localStorage.setItem('kantan_board_phrases', JSON.stringify(phrases));
-                    renderCards();
-                }
-                closeCardRenameModal();
-            };
-        }
-        function closeCardRenameModal() {
-            document.getElementById('card-rename-modal').classList.add('hidden');
-        }
-
-        // カスタム確認ダイアログの表示
-        let onConfirmSuccess = null;
-        function showCustomConfirm(title, message, onSuccess) {
-            document.getElementById('confirm-title').innerText = title;
-            document.getElementById('confirm-message').innerText = message;
-            const modal = document.getElementById('confirm-modal');
-            modal.classList.remove('hidden');
-            
-            onConfirmSuccess = onSuccess;
-            
-            document.getElementById('confirm-cancel-btn').onclick = () => {
-                modal.classList.add('hidden');
-            };
-            document.getElementById('confirm-ok-btn').onclick = () => {
-                modal.classList.add('hidden');
-                if (onConfirmSuccess) onConfirmSuccess();
-            };
-        }
-
-        // カテゴリー追加保存
-        function saveNewCategory() {
-            const name = document.getElementById('new-cat-name').value.trim();
-            if (!name) return;
-            const id = 'custom_' + Date.now();
-            categories.push({ id, name, color: 'bg-indigo-500', custom: true });
-            localStorage.setItem('kantan_board_cats', JSON.stringify(categories));
-            document.getElementById('new-cat-name').value = '';
-            closeAddCatModal();
-            renderSidebar();
-            setCat(id);
-        }
-
-        // カテゴリー削除確認
-        function triggerDeleteCategory(id, e) {
-            e.stopPropagation();
-            const catName = categories.find(c => c.id === id).name;
-            showCustomConfirm(
-                "しゅるいを けしますか？",
-                `「${catName}」と そのなかのカードが ぜんぶ きえます。`,
-                () => {
-                    categories = categories.filter(c => c.id !== id);
-                    phrases = phrases.filter(p => p.cat !== id);
-                    localStorage.setItem('kantan_board_cats', JSON.stringify(categories));
-                    localStorage.setItem('kantan_board_phrases', JSON.stringify(phrases));
-                    if (currentCat === id) setCat('greet');
-                    else renderSidebar();
-                }
-            );
-        }
-
-        // カード追加保存
-        function saveNewPhrase() {
-            const text = document.getElementById('new-text').value.trim();
-            const icon = document.getElementById('new-icon').value.trim() || '⭐️';
-            if (!text) return;
-            phrases.push({ cat: currentCat, text, icon, custom: true });
-            localStorage.setItem('kantan_board_phrases', JSON.stringify(phrases));
-            document.getElementById('new-text').value = '';
-            document.getElementById('new-icon').value = '';
-            closeAddModal();
-            renderCards();
-        }
-
-        // カード削除確認（設定メニューからコール）
-        function triggerDeletePhrase(text, cat) {
-            showCustomConfirm(
-                "カードを けしますか？",
-                `「${text}」のカードを けします。よろしいですか？`,
-                () => {
-                    phrases = phrases.filter(p => !(p.text === text && p.cat === cat));
-                    localStorage.setItem('kantan_board_phrases', JSON.stringify(phrases));
-                    renderCards();
-                }
-            );
-        }
-
-        window.onload = init;
-    </script>
+    function backToMenu() {
+        document.getElementById('goal-screen').style.display = 'none';
+        document.getElementById('start-screen').style.display = 'flex';
+    }
+</script>
 </body>
 </html>
